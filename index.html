@@ -1,0 +1,2224 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>希薄溶液の性質 — 分子シミュレーション</title>
+<style>
+/* ===== Variables & Base ===== */
+:root {
+  --text-muted: #64748b;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 15px; -webkit-text-size-adjust: 100%; }
+body {
+  font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Meiryo", "Noto Sans JP", sans-serif;
+  background: #f5f7fa; color: #2c3e50; line-height: 1.6;
+  overflow-x: hidden; min-height: 100vh;
+}
+
+/* ===== Header ===== */
+.app-header {
+  background: linear-gradient(135deg, #2c3e6b 0%, #3a7bd5 100%);
+  color: #fff; padding: 12px 16px; text-align: center;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.app-header h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; }
+.app-header .subtitle { font-size: 0.72rem; opacity: 0.85; margin-top: 2px; }
+
+/* ===== Step Navigation ===== */
+.step-nav {
+  display: flex; justify-content: center; gap: 4px;
+  padding: 10px 8px; background: #fff;
+  border-bottom: 1px solid #e0e4e8;
+  flex-wrap: wrap;
+}
+.step-btn {
+  padding: 6px 12px; border: 2px solid #d0d5dd; border-radius: 20px;
+  background: #fff; color: #5a6577; font-size: 0.78rem; font-weight: 600;
+  cursor: pointer; transition: all 0.2s; white-space: nowrap;
+  min-height: 36px; display: flex; align-items: center;
+}
+.step-btn:hover { border-color: #3a7bd5; color: #3a7bd5; }
+.step-btn.active {
+  background: #3a7bd5; color: #fff; border-color: #3a7bd5;
+}
+.step-btn:disabled { opacity: 0.4; cursor: default; }
+
+/* ===== Main Container ===== */
+.main-container { max-width: 900px; margin: 0 auto; padding: 0 8px 80px; }
+
+/* ===== Section ===== */
+.step-section { display: none; }
+.step-section.active { display: block; }
+
+/* ===== Step Title ===== */
+.section-title {
+  font-size: 1.05rem; font-weight: 700; color: #2c3e6b;
+  padding: 16px 4px 8px; border-bottom: 2px solid #3a7bd5;
+  margin-bottom: 12px;
+}
+
+/* ===== Info Card ===== */
+.info-card {
+  background: #fff; border-radius: 10px; padding: 14px 16px;
+  margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  border-left: 4px solid #3a7bd5;
+}
+.info-card h3 { font-size: 0.92rem; color: #2c3e6b; margin-bottom: 6px; }
+.info-card p { font-size: 0.82rem; color: #4a5568; }
+.info-card.warning { border-left-color: #e67e22; }
+.info-card.subtle { border-left-color: #95a5a6; }
+
+/* ===== Intro Cards ===== */
+.intro-question {
+  background: linear-gradient(135deg, #ebf5ff, #f0f4ff);
+  border-radius: 12px; padding: 20px 16px; margin: 16px 0;
+  text-align: center; border: 1px solid #c8ddf5;
+}
+.intro-question .q-mark { font-size: 2rem; margin-bottom: 8px; }
+.intro-question p { font-size: 0.95rem; color: #2c3e6b; font-weight: 600; line-height: 1.7; }
+
+.phenomenon-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  margin: 16px 0;
+}
+.phenom-card {
+  background: #fff; border-radius: 10px; padding: 14px 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07); cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  border: 2px solid transparent; text-align: center;
+}
+.phenom-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.phenom-card:active { transform: scale(0.97); }
+.phenom-card .icon { font-size: 1.8rem; margin-bottom: 6px; }
+.phenom-card .name { font-size: 0.82rem; font-weight: 700; color: #2c3e6b; }
+.phenom-card .desc { font-size: 0.7rem; color: #6b7280; margin-top: 4px; line-height: 1.5; }
+.phenom-card[data-step="1"] { border-color: #e8d4f0; }
+.phenom-card[data-step="1"]:hover { border-color: #9b59b6; }
+.phenom-card[data-step="2"] { border-color: #d4e8f0; }
+.phenom-card[data-step="2"]:hover { border-color: #2980b9; }
+.phenom-card[data-step="3"] { border-color: #d4f0e0; }
+.phenom-card[data-step="3"]:hover { border-color: #27ae60; }
+
+/* ===== Canvas Area ===== */
+.canvas-wrapper {
+  display: flex; gap: 6px; margin: 12px 0; width: 100%;
+}
+.canvas-col {
+  flex: 1; min-width: 0; text-align: center;
+}
+.canvas-col .col-label {
+  font-size: 0.72rem; font-weight: 700; color: #5a6577;
+  margin-bottom: 4px; padding: 3px 8px;
+  background: #f0f3f7; border-radius: 4px; display: inline-block;
+}
+.sim-canvas {
+  width: 100%; border-radius: 8px;
+  background: #1a1a2e; display: block;
+  border: 1px solid #d0d5dd;
+}
+/* U-tube canvas full width */
+.canvas-full { width: 100%; text-align: center; margin: 12px 0; }
+.canvas-full .sim-canvas { max-width: 100%; }
+
+/* ===== Controls ===== */
+.controls-area {
+  background: #fff; border-radius: 10px; padding: 14px 14px;
+  margin: 12px 0; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.control-group { margin-bottom: 14px; }
+.control-group:last-child { margin-bottom: 0; }
+.control-label {
+  font-size: 0.78rem; font-weight: 700; color: #4a5568;
+  margin-bottom: 6px; display: flex; align-items: center; gap: 6px;
+}
+.control-label .label-icon { font-size: 1rem; }
+
+/* Concentration buttons */
+.conc-btns {
+  display: flex; flex-wrap: wrap; gap: 5px;
+}
+.conc-btn {
+  padding: 6px 10px; border: 2px solid #d0d5dd; border-radius: 8px;
+  background: #fff; font-size: 0.75rem; font-weight: 600; color: #5a6577;
+  cursor: pointer; transition: all 0.15s; min-height: 36px;
+}
+.conc-btn:hover { border-color: #3a7bd5; color: #3a7bd5; }
+.conc-btn.active { background: #3a7bd5; color: #fff; border-color: #3a7bd5; }
+
+/* Slider */
+.slider-row {
+  display: flex; align-items: center; gap: 8px;
+}
+.slider-row input[type="range"] {
+  flex: 1; height: 6px; -webkit-appearance: none; appearance: none;
+  background: #e0e4e8; border-radius: 3px; outline: none;
+}
+.slider-row input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 24px; height: 24px;
+  border-radius: 50%; background: #3a7bd5; cursor: pointer;
+  border: 3px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+.slider-row input[type="range"]::-moz-range-thumb {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: #3a7bd5; cursor: pointer; border: 3px solid #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+.slider-val {
+  font-size: 0.85rem; font-weight: 700; color: #2c3e6b;
+  min-width: 60px; text-align: right; white-space: nowrap;
+}
+
+/* ===== Status & Dynamic Rate Comparison (Enhanced) ===== */
+.status-box {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin: 14px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.status-box .status-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #edf2f7;
+}
+.status-box .status-title {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.status-box .status-text {
+  font-size: 0.82rem;
+  color: #334155;
+  line-height: 1.7;
+  margin-bottom: 12px;
+  background: #f8fafc;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border-left: 3px solid #3b82f6;
+}
+
+/* Rate Comparison Section */
+.rate-section-header {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #475569;
+  margin: 10px 0 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.rate-section-header .subtext {
+  font-size: 0.68rem;
+  font-weight: normal;
+  color: #64748b;
+}
+
+.rate-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 6px;
+}
+@media (max-width: 540px) {
+  .rate-cards-grid { grid-template-columns: 1fr; gap: 8px; }
+}
+
+.rate-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.rate-card.highlight {
+  background: #f0f7ff;
+  border-color: #bfdbfe;
+}
+.rate-card-title {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.rate-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: #e2e8f0;
+  color: #475569;
+  white-space: nowrap;
+}
+.rate-badge.eq {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+.rate-badge.diff {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.rate-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.rate-row:last-child { margin-bottom: 0; }
+.rate-name {
+  font-size: 0.72rem;
+  font-weight: 600;
+  min-width: 60px;
+  color: #475569;
+}
+.rate-bar-container {
+  flex: 1;
+  height: 10px;
+  background: #e2e8f0;
+  border-radius: 5px;
+  overflow: hidden;
+  position: relative;
+}
+.rate-bar-container .fill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.25s ease-out;
+}
+.rate-bar-container .fill.evap { background: linear-gradient(90deg, #f87171, #ef4444); }
+.rate-bar-container .fill.cond { background: linear-gradient(90deg, #60a5fa, #3b82f6); }
+.rate-bar-container .fill.freeze { background: linear-gradient(90deg, #818cf8, #6366f1); }
+.rate-bar-container .fill.melt { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
+.rate-bar-container .fill.flow-fwd { background: linear-gradient(90deg, #38bdf8, #0284c7); }
+.rate-bar-container .fill.flow-rev { background: linear-gradient(90deg, #fb923c, #ea580c); }
+
+.rate-val {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #1e293b;
+  min-width: 34px;
+  text-align: right;
+}
+.rate-relation {
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px dashed #cbd5e1;
+  color: #334155;
+}
+.rate-summary-note {
+  font-size: 0.7rem;
+  color: #64748b;
+  margin-top: 8px;
+  line-height: 1.5;
+  background: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #edf2f7;
+}
+
+/* ===== Numerical Display ===== */
+.num-display {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  margin: 12px 0;
+}
+.num-item {
+  background: #fff; border-radius: 8px; padding: 10px 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  border-left: 3px solid #3a7bd5;
+}
+.num-item .num-label { font-size: 0.68rem; color: #6b7280; }
+.num-item .num-value { font-size: 1rem; font-weight: 700; color: #2c3e6b; margin-top: 2px; }
+
+/* ===== Formula Display ===== */
+.formula-box {
+  background: #fff; border-radius: 10px; padding: 14px 16px;
+  margin: 12px 0; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  border: 1px dashed #c8d6e5;
+}
+.formula-box .formula-title {
+  font-size: 0.72rem; color: #6b7280; margin-bottom: 8px;
+  display: flex; align-items: center; gap: 4px;
+}
+.formula-box .formula-main {
+  font-size: 1.05rem; font-weight: 700; color: #2c3e6b;
+  text-align: center; padding: 8px 0; font-family: "Cambria Math", "Times New Roman", serif;
+  letter-spacing: 0.03em;
+}
+.formula-box .formula-detail {
+  font-size: 0.72rem; color: #6b7280; margin-top: 8px; line-height: 1.7;
+}
+.formula-box .formula-calc {
+  background: #f0f7ff; border-radius: 6px; padding: 8px 10px;
+  margin-top: 8px; font-size: 0.78rem; color: #2c3e6b;
+  font-weight: 600; text-align: center;
+}
+
+/* ===== Legend ===== */
+.legend {
+  display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+  padding: 8px 0; margin: 8px 0;
+}
+.legend-item {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 0.7rem; color: #6b7280;
+}
+.legend-dot {
+  width: 10px; height: 10px; border-radius: 50%; display: inline-block;
+}
+.legend-hex {
+  width: 12px; height: 10px; display: inline-block;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+/* ===== Supplementary note ===== */
+.note-box {
+  background: #f8fafc; border-radius: 8px; padding: 10px 12px;
+  margin: 12px 0; font-size: 0.72rem; color: #6b7280;
+  line-height: 1.7; border: 1px solid #e2e8f0;
+}
+.note-box strong { color: #4a5568; }
+
+/* ===== Colligative note at bottom ===== */
+.colligative-note {
+  background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 10px;
+  padding: 14px 16px; margin: 20px 0;
+}
+.colligative-note h4 { font-size: 0.82rem; color: #7c3aed; margin-bottom: 6px; }
+.colligative-note p { font-size: 0.75rem; color: #6b21a8; line-height: 1.7; }
+
+/* フッター */
+.app-footer {
+  text-align: center;
+  padding: 1rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* スライダー用プリセットボタン */
+.slider-presets {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+.preset-btn {
+  padding: 4px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.preset-btn:hover {
+  border-color: #3a7bd5;
+  color: #3a7bd5;
+  background: #eff6ff;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 480px) {
+  html { font-size: 14px; }
+  .app-header h1 { font-size: 1rem; }
+  .step-btn { padding: 5px 8px; font-size: 0.72rem; }
+  .phenomenon-grid { grid-template-columns: 1fr 1fr; gap: 6px; }
+  .num-display { grid-template-columns: 1fr 1fr; gap: 6px; }
+  .conc-btn { padding: 5px 7px; font-size: 0.7rem; }
+}
+@media (min-width: 768px) {
+  .main-container { padding: 0 20px 80px; }
+  .canvas-wrapper { gap: 12px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== Header ===== -->
+<header class="app-header">
+  <h1>希薄溶液の性質</h1>
+  <div class="subtitle">分子シミュレーションで学ぶ4つの現象</div>
+</header>
+
+<!-- ===== Step Navigation ===== -->
+<nav class="step-nav" id="stepNav">
+  <button class="step-btn active" data-step="0">はじめに</button>
+  <button class="step-btn" data-step="1">蒸気圧降下・沸点上昇</button>
+  <button class="step-btn" data-step="2">凝固点降下</button>
+  <button class="step-btn" data-step="3">浸透圧</button>
+</nav>
+
+<!-- ===== Main ===== -->
+<main class="main-container">
+
+<!-- ==================== STEP 0 ==================== -->
+<section class="step-section active" id="step0">
+  <div class="intro-question">
+    <div class="q-mark">🧪</div>
+    <p>水にグルコース（ブドウ糖）を溶かすと、<br>なぜ水の性質が変わるのだろう？</p>
+  </div>
+
+  <div class="info-card">
+    <p>溶質（グルコース）の粒子が溶媒（水）の中に存在すると、水粒子の振る舞いが変化し、その結果として巨視的な性質が変わります。</p>
+  </div>
+
+  <div class="phenomenon-grid">
+    <div class="phenom-card" data-step="1" onclick="goToStep(1)">
+      <div class="icon">💨</div>
+      <div class="name">蒸気圧降下</div>
+      <div class="desc">水蒸気になりにくくなる</div>
+    </div>
+    <div class="phenom-card" data-step="1" onclick="goToStep(1)">
+      <div class="icon">🔥</div>
+      <div class="name">沸点上昇</div>
+      <div class="desc">沸騰する温度が高くなる</div>
+    </div>
+    <div class="phenom-card" data-step="2" onclick="goToStep(2)">
+      <div class="icon">❄️</div>
+      <div class="name">凝固点降下</div>
+      <div class="desc">凍る温度が低くなる</div>
+    </div>
+    <div class="phenom-card" data-step="3" onclick="goToStep(3)">
+      <div class="icon">🧫</div>
+      <div class="name">浸透圧</div>
+      <div class="desc">半透膜を通して水が移動する</div>
+    </div>
+  </div>
+
+  <div class="info-card subtle">
+    <h3>共通する視点</h3>
+    <p>これらの現象には共通点があります。<strong>溶質粒子が溶媒の中に存在することで、溶媒粒子の平衡や移動が変化する</strong>のです。<br>各STEPでは、分子レベルの変化がどのように巨視的な現象につながるかを見ていきましょう。</p>
+  </div>
+
+  <div class="note-box">
+    ※ このアプリでは溶質を<strong>グルコース（非電解質）</strong>、溶媒を<strong>水</strong>に限定しています。<br>
+    ※ 画面上の粒子は模式的に表示しており、実際の分子数を示すものではありません。
+  </div>
+</section>
+
+<!-- ==================== STEP 1 ==================== -->
+<section class="step-section" id="step1">
+  <h2 class="section-title">STEP 1 ― 蒸気圧降下・沸点上昇</h2>
+
+  <div class="info-card">
+    <p>溶質粒子の存在により、液面から蒸発できる水粒子の割合が減少します。その結果、<strong>平衡時の蒸気圧が低下</strong>し、沸騰するためにはより高い温度が必要になります。</p>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <span class="legend-item"><span class="legend-dot" style="background:#4A90D9;"></span> 水（液体）</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#8BBCE8; opacity:0.7;"></span> 水（気体）</span>
+    <span class="legend-item"><span class="legend-hex" style="background:#D4A574;"></span> グルコース</span>
+  </div>
+
+  <!-- Canvas: side-by-side -->
+  <div class="canvas-wrapper">
+    <div class="canvas-col">
+      <div class="col-label">純水</div>
+      <canvas id="cvVaporL" class="sim-canvas" height="260"></canvas>
+    </div>
+    <div class="canvas-col">
+      <div class="col-label" id="labelVaporR">グルコース水溶液</div>
+      <canvas id="cvVaporR" class="sim-canvas" height="260"></canvas>
+    </div>
+  </div>
+
+  <!-- Status & Dynamic Rate Comparison -->
+  <div class="status-box" id="statusStep1">
+    <div class="status-header">
+      <div class="status-title">💡 今、何が起きている？</div>
+    </div>
+    <div class="status-text" id="statusText1">シミュレーションを観察してください。</div>
+    
+    <div class="rate-section-header">
+      <span>【微視的な変化速度の比較（相対値 %）】</span>
+      <span class="subtext">※ 蒸発速度 ＝ 凝縮速度 で「気液平衡」</span>
+    </div>
+
+    <div class="rate-cards-grid">
+      <!-- Pure water card -->
+      <div class="rate-card">
+        <div class="rate-card-title">
+          <span>純水</span>
+          <span class="rate-badge eq" id="badgeVaporL">気液平衡</span>
+        </div>
+        <div class="rate-row">
+          <span class="rate-name">蒸発速度</span>
+          <div class="rate-bar-container"><div class="fill evap" id="evapBarL" style="width:70%;"></div></div>
+          <span class="rate-val" id="evapValL">70%</span>
+        </div>
+        <div class="rate-row">
+          <span class="rate-name">凝縮速度</span>
+          <div class="rate-bar-container"><div class="fill cond" id="condBarL" style="width:70%;"></div></div>
+          <span class="rate-val" id="condValL">70%</span>
+        </div>
+        <div class="rate-relation" id="relVaporL">蒸発速度 ＝ 凝縮速度</div>
+      </div>
+
+      <!-- Solution card -->
+      <div class="rate-card highlight">
+        <div class="rate-card-title">
+          <span>グルコース水溶液</span>
+          <span class="rate-badge eq" id="badgeVaporR">気液平衡</span>
+        </div>
+        <div class="rate-row">
+          <span class="rate-name">蒸発速度</span>
+          <div class="rate-bar-container"><div class="fill evap" id="evapBarR" style="width:56%;"></div></div>
+          <span class="rate-val" id="evapValR">56%</span>
+        </div>
+        <div class="rate-row">
+          <span class="rate-name">凝縮速度</span>
+          <div class="rate-bar-container"><div class="fill cond" id="condBarR" style="width:56%;"></div></div>
+          <span class="rate-val" id="condValR">56%</span>
+        </div>
+        <div class="rate-relation" id="relVaporR">蒸発速度 ＝ 凝縮速度</div>
+      </div>
+    </div>
+    <div class="rate-summary-note" id="noteVapor">
+      ★ グルコース分子が液面の一部に存在するため、水の<strong>蒸発速度が純水より小さくなります</strong>。その結果、平衡時の蒸気圧が低下します（蒸気圧降下）。
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls-area">
+    <div class="control-group">
+      <div class="control-label"><span class="label-icon">🧪</span> グルコース量（基準: 0.1 mol）</div>
+      <div class="conc-btns" id="concBtns1">
+        <button class="conc-btn" data-mult="0.25">×1/4</button>
+        <button class="conc-btn" data-mult="0.333">×1/3</button>
+        <button class="conc-btn" data-mult="0.5">×1/2</button>
+        <button class="conc-btn active" data-mult="1">×1</button>
+        <button class="conc-btn" data-mult="2">×2</button>
+        <button class="conc-btn" data-mult="3">×3</button>
+        <button class="conc-btn" data-mult="4">×4</button>
+      </div>
+    </div>
+    <div class="control-group">
+      <div class="control-label"><span class="label-icon">🌡️</span> 温度</div>
+      <div class="slider-row">
+        <input type="range" id="tempSlider1" min="99.5" max="100.5" step="0.01" value="100.0">
+        <span class="slider-val" id="tempVal1">100.00 ℃</span>
+      </div>
+      <div class="slider-presets">
+        <button type="button" class="preset-btn" onclick="setTemp1(100.00)">純水の沸点（100.00 ℃）</button>
+        <button type="button" class="preset-btn" id="btnSnapBp1" onclick="setTemp1ToBp()">溶液の沸点（100.05 ℃）に設定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Numerical -->
+  <div class="num-display" id="numDisplay1">
+    <div class="num-item">
+      <div class="num-label">グルコース</div>
+      <div class="num-value" id="nMoles1">0.100 mol</div>
+    </div>
+    <div class="num-item">
+      <div class="num-label">質量モル濃度</div>
+      <div class="num-value" id="nMolality1">0.100 mol/kg</div>
+    </div>
+    <div class="num-item">
+      <div class="num-label">蒸気圧降下率</div>
+      <div class="num-value" id="nVPdrop1">—</div>
+    </div>
+    <div class="num-item">
+      <div class="num-label">沸点上昇度</div>
+      <div class="num-value" id="nBPrise1">—</div>
+    </div>
+  </div>
+
+  <!-- Formula box: Boiling Point Elevation -->
+  <div class="formula-box">
+    <div class="formula-title">📐 数式モデル ― 沸点上昇</div>
+    <div class="formula-main">ΔT<sub>b</sub> = K<sub>b</sub> · m</div>
+    <div class="formula-detail">
+      K<sub>b</sub>（水のモル沸点上昇定数）= 0.512 ℃·kg/mol<br>
+      m = 質量モル濃度 [mol/kg]
+    </div>
+    <div class="formula-calc" id="formulaCalc1">
+      ΔT<sub>b</sub> = 0.512 × 0.100 = <strong>0.0512 ℃</strong>　→　沸点 ≈ 100.05 ℃
+    </div>
+  </div>
+
+  <!-- Formula box: Vapor Pressure (Raoult) -->
+  <div class="formula-box">
+    <div class="formula-title">📐 数式モデル ― 蒸気圧降下（ラウールの法則）</div>
+    <div class="formula-main">P = x<sub>水</sub> · P°</div>
+    <div class="formula-detail">
+      x<sub>水</sub> = 水のモル分率、P° = 純水の蒸気圧<br>
+      溶質のモル分率が大きくなるほど、蒸気圧は低下します。
+    </div>
+    <div class="formula-calc" id="formulaCalcVP1">
+      x<sub>水</sub> ≈ 0.9982 → 蒸気圧は純水の約 99.82 %
+    </div>
+  </div>
+
+  <div class="note-box">
+    ※ 沸騰とは、液体内部でも蒸発が起こり蒸気圧が外圧（1 atm ≈ 101.3 kPa）に等しくなる現象です。蒸気圧が下がった分だけ、沸騰に必要な温度が高くなります。
+  </div>
+</section>
+
+<!-- ==================== STEP 2 ==================== -->
+<section class="step-section" id="step2">
+  <h2 class="section-title">STEP 2 ― 凝固点降下</h2>
+
+  <div class="info-card">
+    <p>溶質粒子が存在すると、水分子が規則正しく集まって固体（氷）の構造を形成する過程が妨げられます。純水と同じ温度では固液平衡を維持できず、<strong>凝固点が低下</strong>します。</p>
+  </div>
+
+  <div class="legend">
+    <span class="legend-item"><span class="legend-dot" style="background:#4A90D9;"></span> 水（液体）</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#2E5C8A;"></span> 水（固体）</span>
+    <span class="legend-item"><span class="legend-hex" style="background:#D4A574;"></span> グルコース</span>
+  </div>
+
+  <div class="canvas-wrapper">
+    <div class="canvas-col">
+      <div class="col-label">純水</div>
+      <canvas id="cvFreezeL" class="sim-canvas" height="260"></canvas>
+    </div>
+    <div class="canvas-col">
+      <div class="col-label">グルコース水溶液</div>
+      <canvas id="cvFreezeR" class="sim-canvas" height="260"></canvas>
+    </div>
+  </div>
+
+  <!-- Status & Dynamic Rate Comparison -->
+  <div class="status-box" id="statusStep2">
+    <div class="status-header">
+      <div class="status-title">💡 今、何が起きている？</div>
+    </div>
+    <div class="status-text" id="statusText2">温度とグルコース量を変えて観察しましょう。</div>
+
+    <div class="rate-section-header">
+      <span>【微視的な変化速度の比較（相対値 %）】</span>
+      <span class="subtext">※ 凝固速度 ＝ 融解速度 で「固液平衡」</span>
+    </div>
+
+    <div class="rate-cards-grid">
+      <!-- Pure water card -->
+      <div class="rate-card">
+        <div class="rate-card-title">
+          <span>純水（0.00 ℃ 基準）</span>
+          <span class="rate-badge eq" id="badgeFreezeL">固液平衡</span>
+        </div>
+        <div class="rate-row">
+          <span class="rate-name">凝固速度</span>
+          <div class="rate-bar-container"><div class="fill freeze" id="freezeBarL" style="width:50%;"></div></div>
+          <span class="rate-val" id="freezeValL">50%</span>
+        </div>
+        <div class="rate-row">
+          <span class="rate-name">融解速度</span>
+          <div class="rate-bar-container"><div class="fill melt" id="meltBarL" style="width:50%;"></div></div>
+          <span class="rate-val" id="meltValL">50%</span>
+        </div>
+        <div class="rate-relation" id="relFreezeL">凝固速度 ＝ 融解速度</div>
+      </div>
+
+      <!-- Solution card -->
+      <div class="rate-card highlight">
+        <div class="rate-card-title">
+          <span>グルコース水溶液</span>
+          <span class="rate-badge diff" id="badgeFreezeR">融解優勢</span>
+        </div>
+        <div class="rate-row">
+          <span class="rate-name">凝固速度</span>
+          <div class="rate-bar-container"><div class="fill freeze" id="freezeBarR" style="width:35%;"></div></div>
+          <span class="rate-val" id="freezeValR">35%</span>
+        </div>
+        <div class="rate-row">
+          <span class="rate-name">融解速度</span>
+          <div class="rate-bar-container"><div class="fill melt" id="meltBarR" style="width:50%;"></div></div>
+          <span class="rate-val" id="meltValR">50%</span>
+        </div>
+        <div class="rate-relation" id="relFreezeR">融解速度 ＞ 凝固速度</div>
+      </div>
+    </div>
+    <div class="rate-summary-note" id="noteFreeze">
+      ★ 溶質粒子の存在により<strong>凝固速度が妨げられて低下</strong>します。温度を下げて融解速度を落とすことで、はじめて凝固速度と釣り合う新しい固液平衡に達します（凝固点降下）。
+    </div>
+  </div>
+
+  <div class="controls-area">
+    <div class="control-group">
+      <div class="control-label"><span class="label-icon">🧪</span> グルコース量（基準: 0.1 mol）</div>
+      <div class="conc-btns" id="concBtns2">
+        <button class="conc-btn" data-mult="0.25">×1/4</button>
+        <button class="conc-btn" data-mult="0.333">×1/3</button>
+        <button class="conc-btn" data-mult="0.5">×1/2</button>
+        <button class="conc-btn active" data-mult="1">×1</button>
+        <button class="conc-btn" data-mult="2">×2</button>
+        <button class="conc-btn" data-mult="3">×3</button>
+        <button class="conc-btn" data-mult="4">×4</button>
+      </div>
+    </div>
+    <div class="control-group">
+      <div class="control-label"><span class="label-icon">🌡️</span> 温度</div>
+      <div class="slider-row">
+        <input type="range" id="tempSlider2" min="-1.0" max="0.2" step="0.01" value="0.0">
+        <span class="slider-val" id="tempVal2">0.00 ℃</span>
+      </div>
+      <div class="slider-presets">
+        <button type="button" class="preset-btn" onclick="setTemp2(0.00)">純水の凝固点（0.00 ℃）</button>
+        <button type="button" class="preset-btn" id="btnSnapFp2" onclick="setTemp2ToFp()">溶液の凝固点（-0.19 ℃）に設定</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="num-display" id="numDisplay2">
+    <div class="num-item">
+      <div class="num-label">グルコース</div>
+      <div class="num-value" id="nMoles2">0.100 mol</div>
+    </div>
+    <div class="num-item">
+      <div class="num-label">質量モル濃度</div>
+      <div class="num-value" id="nMolality2">0.100 mol/kg</div>
+    </div>
+    <div class="num-item">
+      <div class="num-label">凝固点降下度</div>
+      <div class="num-value" id="nFPdrop2">—</div>
+    </div>
+    <div class="num-item">
+      <div class="num-label">凝固点</div>
+      <div class="num-value" id="nFP2">—</div>
+    </div>
+  </div>
+
+  <!-- Formula box: Freezing Point Depression -->
+  <div class="formula-box">
+    <div class="formula-title">📐 数式モデル ― 凝固点降下</div>
+    <div class="formula-main">ΔT<sub>f</sub> = K<sub>f</sub> · m</div>
+    <div class="formula-detail">
+      K<sub>f</sub>（水のモル凝固点降下定数）= 1.86 ℃·kg/mol<br>
+      m = 質量モル濃度 [mol/kg]
+    </div>
+    <div class="formula-calc" id="formulaCalc2">
+      ΔT<sub>f</sub> = 1.86 × 0.100 = <strong>0.186 ℃</strong>　→　凝固点 ≈ −0.19 ℃
+    </div>
+  </div>
+
+  <div class="info-card subtle">
+    <h3>なぜ凝固点が下がるのか？</h3>
+    <p>溶質粒子が存在すると、水分子だけが規則正しく集まって固体構造をつくりにくくなります。温度を下げて融解速度を十分に低下させることで、はじめて凝固速度と釣り合う新しい平衡が成立します。</p>
+  </div>
+
+  <div class="note-box">
+    ※ 固液平衡は「凝固と融解が同時に起きている動的な状態」です。平衡に達しても粒子の移動は止まりません。
+  </div>
+</section>
+
+<!-- ==================== STEP 3 ==================== -->
+<section class="step-section" id="step3">
+  <h2 class="section-title">STEP 3 ― 浸透圧</h2>
+
+  <div class="info-card">
+    <p>半透膜で隔てられた純水とグルコース水溶液では、水分子は膜を通過できますがグルコースは通過できません。水は<strong>純水側から溶液側へ</strong>優先的に移動し、液面差が生じます。</p>
+  </div>
+
+  <div class="legend">
+    <span class="legend-item"><span class="legend-dot" style="background:#4A90D9;"></span> 水</span>
+    <span class="legend-item"><span class="legend-hex" style="background:#D4A574;"></span> グルコース</span>
+    <span class="legend-item"><span style="display:inline-block;width:4px;height:12px;background:#e74c3c;margin-right:2px;border-radius:1px;"></span> 半透膜（下部）</span>
+    <span class="legend-item"><span style="display:inline-block;width:4px;height:12px;background:#94a3b8;margin-right:2px;border-radius:1px;"></span> 中央隔壁（不透過）</span>
+  </div>
+
+  <div class="canvas-full">
+    <canvas id="cvOsmosis" class="sim-canvas" height="380"></canvas>
+  </div>
+
+  <!-- Status & Dynamic Rate Comparison for Osmosis -->
+  <div class="status-box" id="statusStep3">
+    <div class="status-header">
+      <div class="status-title">💡 今、何が起きている？</div>
+    </div>
+    <div class="status-text" id="statusText3">グルコース量を変えて浸透の様子を観察しましょう。</div>
+
+    <div class="rate-section-header">
+      <span>【半透膜を通過する水の移動速度（相対値 %）】</span>
+      <span class="subtext">※ 正逆の移動速度が等しくなると「浸透平衡」</span>
+    </div>
+
+    <div class="rate-card highlight">
+      <div class="rate-card-title">
+        <span>半透膜を通過する水の移動速度</span>
+        <span class="rate-badge diff" id="badgeOsmosis">浸透進行中</span>
+      </div>
+      <div class="rate-row">
+        <span class="rate-name">純水 → 溶液</span>
+        <div class="rate-bar-container"><div class="fill flow-fwd" id="flowFwdBar" style="width:75%;"></div></div>
+        <span class="rate-val" id="flowFwdVal">75%</span>
+      </div>
+      <div class="rate-row">
+        <span class="rate-name">溶液 → 純水</span>
+        <div class="rate-bar-container"><div class="fill flow-rev" id="flowRevBar" style="width:25%;"></div></div>
+        <span class="rate-val" id="flowRevVal">25%</span>
+      </div>
+      <div class="rate-relation" id="relOsmosis">純水→溶液 ＞ 溶液→純水（液面差が増加中）</div>
+    </div>
+    <div class="rate-summary-note">
+      ★ 液面差によって生じる圧力（静水圧）が溶液側から純水側へ水を押し戻します。液面差が十分に大きくなると両方向の移動速度が等しくなり、<strong>浸透の動的平衡</strong>に達します。
+    </div>
+  </div>
+
+  <div class="controls-area">
+    <div class="control-group">
+      <div class="control-label"><span class="label-icon">🧪</span> グルコース量（基準: 0.1 mol）</div>
+      <div class="conc-btns" id="concBtns3">
+        <button class="conc-btn" data-mult="0.25">×1/4</button>
+        <button class="conc-btn" data-mult="0.333">×1/3</button>
+        <button class="conc-btn" data-mult="0.5">×1/2</button>
+        <button class="conc-btn active" data-mult="1">×1</button>
+        <button class="conc-btn" data-mult="2">×2</button>
+        <button class="conc-btn" data-mult="3">×3</button>
+        <button class="conc-btn" data-mult="4">×4</button>
+      </div>
+    </div>
+    <div class="control-group">
+      <div class="control-label"><span class="label-icon">🌡️</span> 温度</div>
+      <div class="slider-row">
+        <input type="range" id="tempSlider3" min="20" max="30" step="0.5" value="25">
+        <span class="slider-val" id="tempVal3">25.0 ℃</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="num-display" id="numDisplay3">
+    <div class="num-item">
+      <div class="num-label">グルコース</div>
+      <div class="num-value" id="nMoles3">0.100 mol</div>
+    </div>
+    <div class="num-item">
+      <div class="num-label">浸透圧（計算値）</div>
+      <div class="num-value" id="nOsmP3">—</div>
+    </div>
+    <div class="num-item">
+      <div class="num-label">絶対温度</div>
+      <div class="num-value" id="nTemp3">298.15 K</div>
+    </div>
+    <div class="num-item">
+      <div class="num-label">状態</div>
+      <div class="num-value" id="nHeight3">—</div>
+    </div>
+  </div>
+
+  <!-- Formula box: Osmotic Pressure -->
+  <div class="formula-box">
+    <div class="formula-title">📐 数式モデル ― 浸透圧（ファントホッフの式）</div>
+    <div class="formula-main">Π = cRT</div>
+    <div class="formula-detail">
+      Π = 浸透圧 [Pa]<br>
+      c = モル濃度 [mol/L]（希薄水溶液では mol/kg とほぼ等しい）<br>
+      R = 気体定数 = 8.314 J/(mol·K)<br>
+      T = 絶対温度 [K]
+    </div>
+    <div class="formula-calc" id="formulaCalc3">
+      Π = 0.100 × 8.314 × 298.15 = <strong>247.9 kPa</strong>（≈ 2.45 atm）
+    </div>
+  </div>
+
+  <div class="info-card subtle">
+    <h3>浸透圧とは？</h3>
+    <p>浸透圧は「浸透を止めるために溶液側にかける必要がある圧力」です。溶液が濃いほど、水が移動しようとする傾向が強くなり、浸透圧は大きくなります。</p>
+  </div>
+
+  <div class="note-box">
+    ※ 平衡に達した後も水分子は膜を両方向に通過し続けています。巨視的には液面差が一定に保たれる動的平衡の状態です。
+  </div>
+</section>
+
+<!-- ===== Colligative note (shows after visiting all steps) ===== -->
+<div class="colligative-note" id="colligativeNote" style="display:none;">
+  <h4>📚 発展 ― 束一的性質</h4>
+  <p>これまで学んだ蒸気圧降下・沸点上昇・凝固点降下・浸透圧は、いずれも<strong>溶質粒子の数</strong>に依存する性質です。大学以降の化学では、このような性質を「束一的性質（colligative properties）」と呼びます。</p>
+</div>
+
+</main>
+
+<footer class="app-footer">ver.1.0.0</footer>
+
+<script>
+"use strict";
+
+/* ============================================================
+ *  CONSTANTS — 将来拡張に備えた定数オブジェクト
+ * ============================================================ */
+const SOLVENTS = {
+  water: {
+    name: "水",
+    formula: "H₂O",
+    molarMass: 18.015,    // g/mol
+    boilingPoint: 100.0,  // °C
+    freezingPoint: 0.0,   // °C
+    Kb: 0.512,            // °C·kg/mol
+    Kf: 1.86,             // °C·kg/mol
+    density: 1.0,         // g/mL (approx for dilute)
+    // Antoine equation constants (1–100 °C range)
+    antoine: { A: 8.07131, B: 1730.63, C: 233.426 },
+    // High range (99–374 °C)
+    antoineHigh: { A: 8.14019, B: 1810.94, C: 244.485 }
+  }
+};
+
+const SOLUTES = {
+  glucose: {
+    name: "グルコース",
+    formula: "C₆H₁₂O₆",
+    molarMass: 180.16,   // g/mol
+    vantHoffFactor: 1,   // non-electrolyte
+    isElectrolyte: false,
+    color: "#D4A574",
+    colorAlpha: "rgba(212,165,116,0.5)"
+  }
+};
+
+const R_GAS = 8.314;  // J/(mol·K)
+const ATM_PA = 101325; // 1 atm in Pa
+const BASE_MOLES = 0.1; // mol
+const SOLVENT_MASS_KG = 1.0; // kg
+
+/* Multiplier options for concentration */
+const MULT_OPTIONS = [0.25, 1/3, 0.5, 1, 2, 3, 4];
+
+/* Simulation visual constants */
+const SIM = {
+  WATER_RADIUS: 3.5,
+  GLUCOSE_RADIUS: 5.5,
+  WATER_COLOR_LIQ: "#4A90D9",
+  WATER_COLOR_GAS: "rgba(139,188,232,0.6)",
+  WATER_COLOR_SOLID: "#2E5C8A",
+  GLUCOSE_COLOR: "rgba(212,165,116,0.55)",
+  GLUCOSE_STROKE: "rgba(180,130,80,0.4)",
+  BG_COLOR: "#1a1a2e",
+  LIQUID_COLOR: "rgba(74,144,217,0.12)",
+  SOLID_COLOR: "rgba(46,92,138,0.18)",
+  GAS_BG: "rgba(30,30,55,1)",
+  MEMBRANE_COLOR: "#ef4444"
+};
+
+/* ============================================================
+ *  STATE — 中央状態管理
+ * ============================================================ */
+const state = {
+  currentStep: 0,
+  visitedSteps: new Set([0]),
+  solvent: SOLVENTS.water,
+  solute: SOLUTES.glucose,
+
+  // Per-step state
+  step1: {
+    mult: 1,
+    temperature: 100.0,
+    time: 0
+  },
+  step2: {
+    mult: 1,
+    temperature: 0.0,
+    time: 0
+  },
+  step3: {
+    mult: 1,
+    temperature: 25.0,
+    levelDiff: 0,        // current liquid level difference (0→target)
+    targetDiff: 0,
+    equilibrium: 0,
+    time: 0
+  },
+  animationId: null,
+  running: true
+};
+
+/* Particle arrays per canvas */
+const particles = {
+  vaporL: [], vaporR: [],  // Step 1
+  freezeL: [], freezeR: [],  // Step 2
+  osmosis: []  // Step 3
+};
+
+/* ============================================================
+ *  PHYSICAL CHEMISTRY CALCULATIONS
+ * ============================================================ */
+function getMoles(mult) {
+  return BASE_MOLES * mult;
+}
+
+function getMolality(moles) {
+  return moles / SOLVENT_MASS_KG;
+}
+
+function getMoleFractionSolvent(moles) {
+  const nWater = (SOLVENT_MASS_KG * 1000) / state.solvent.molarMass;
+  const nSolute = moles * state.solute.vantHoffFactor;
+  return nWater / (nWater + nSolute);
+}
+
+/** Vapor pressure of pure water at T (°C) using Antoine eq. Returns mmHg */
+function vaporPressurePure(T) {
+  const a = T >= 99 ? state.solvent.antoineHigh : state.solvent.antoine;
+  return Math.pow(10, a.A - a.B / (a.C + T));
+}
+
+/** Vapor pressure of solution (Raoult's law) */
+function vaporPressureSolution(T, moles) {
+  return getMoleFractionSolvent(moles) * vaporPressurePure(T);
+}
+
+/** Boiling point of solution */
+function boilingPointSolution(moles) {
+  const m = getMolality(moles);
+  return state.solvent.boilingPoint + state.solvent.Kb * m * state.solute.vantHoffFactor;
+}
+
+/** Freezing point of solution */
+function freezingPointSolution(moles) {
+  const m = getMolality(moles);
+  return state.solvent.freezingPoint - state.solvent.Kf * m * state.solute.vantHoffFactor;
+}
+
+/** ΔTb */
+function boilingPointElevation(moles) {
+  return state.solvent.Kb * getMolality(moles) * state.solute.vantHoffFactor;
+}
+
+/** ΔTf */
+function freezingPointDepression(moles) {
+  return state.solvent.Kf * getMolality(moles) * state.solute.vantHoffFactor;
+}
+
+/** Osmotic pressure in Pa */
+function osmoticPressure(moles, T_celsius) {
+  const c = getMolality(moles); // mol/kg ≈ mol/L
+  const T_K = T_celsius + 273.15;
+  return c * R_GAS * T_K * state.solute.vantHoffFactor;
+}
+
+/* ============================================================
+ *  PARTICLE SYSTEM
+ * ============================================================ */
+
+/** Create particle object */
+function createParticle(x, y, type, region) {
+  const speed = type === "water_gas" ? 1.5 :
+                type === "water_solid" ? 0.05 :
+                type === "glucose" ? 0.4 : 0.8;
+  return {
+    x, y, type, region,
+    vx: (Math.random() - 0.5) * speed * 2,
+    vy: (Math.random() - 0.5) * speed * 2,
+    phase: Math.random() * Math.PI * 2  // for oscillation
+  };
+}
+
+/** Initialize particles for Step 1 canvas (one side) */
+function initVaporParticles(arr, w, h, glucoseCount) {
+  arr.length = 0;
+  const liquidY = h * 0.55; // liquid surface
+  const waterCount = 30;
+  const gasCount = 5;
+
+  // Liquid water particles
+  for (let i = 0; i < waterCount; i++) {
+    const x = 10 + Math.random() * (w - 20);
+    const y = liquidY + 10 + Math.random() * (h - liquidY - 20);
+    arr.push(createParticle(x, y, "water_liquid", "liquid"));
+  }
+  // Gas water particles
+  for (let i = 0; i < gasCount; i++) {
+    const x = 10 + Math.random() * (w - 20);
+    const y = 10 + Math.random() * (liquidY - 20);
+    arr.push(createParticle(x, y, "water_gas", "gas"));
+  }
+  // Glucose particles
+  for (let i = 0; i < glucoseCount; i++) {
+    const x = 15 + Math.random() * (w - 30);
+    const y = liquidY + 15 + Math.random() * (h - liquidY - 30);
+    arr.push(createParticle(x, y, "glucose", "liquid"));
+  }
+}
+
+/** Initialize particles for Step 2 canvas (one side) */
+function initFreezeParticles(arr, w, h, glucoseCount) {
+  arr.length = 0;
+  const boundary = h * 0.55; // solid-liquid boundary
+  const solidCount = 18;
+  const liquidCount = 18;
+
+  // Solid water particles (arranged in a grid-like pattern)
+  const cols = 6;
+  const rows = Math.ceil(solidCount / cols);
+  const spacingX = (w - 20) / (cols + 1);
+  const spacingY = (h - boundary - 10) / (rows + 1);
+  for (let i = 0; i < solidCount; i++) {
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    const x = 10 + spacingX * (col + 1) + (row % 2 === 1 ? spacingX * 0.5 : 0);
+    const y = boundary + 5 + spacingY * (row + 1);
+    arr.push(createParticle(x, y, "water_solid", "solid"));
+  }
+  // Liquid water particles
+  for (let i = 0; i < liquidCount; i++) {
+    const x = 10 + Math.random() * (w - 20);
+    const y = 10 + Math.random() * (boundary - 20);
+    arr.push(createParticle(x, y, "water_liquid", "liquid"));
+  }
+  // Glucose particles (in liquid region only)
+  for (let i = 0; i < glucoseCount; i++) {
+    const x = 15 + Math.random() * (w - 30);
+    const y = 15 + Math.random() * (boundary - 30);
+    arr.push(createParticle(x, y, "glucose", "liquid"));
+  }
+}
+
+/** Initialize particles for Step 3 (osmosis U-tube) */
+function initOsmosisParticles(arr, w, h, glucoseCount) {
+  arr.length = 0;
+  const memX = w * 0.5;
+  const tubeWidth = Math.min(w * 0.38, 140);
+  const tubeBot = h - 25;
+  const baseLevel = 190;
+  const leftX1 = memX - tubeWidth;
+  const rightX2 = memX + tubeWidth;
+
+  // Left side (pure water) particles
+  for (let i = 0; i < 24; i++) {
+    const x = leftX1 + 10 + Math.random() * (memX - leftX1 - 20);
+    const y = baseLevel + 15 + Math.random() * (tubeBot - baseLevel - 25);
+    arr.push(createParticle(x, y, "water_liquid", "left"));
+  }
+  // Right side (solution) water particles
+  for (let i = 0; i < 18; i++) {
+    const x = memX + 10 + Math.random() * (rightX2 - memX - 20);
+    const y = baseLevel + 15 + Math.random() * (tubeBot - baseLevel - 25);
+    arr.push(createParticle(x, y, "water_liquid", "right"));
+  }
+  // Right side glucose
+  for (let i = 0; i < glucoseCount; i++) {
+    const x = memX + 15 + Math.random() * (rightX2 - memX - 30);
+    const y = baseLevel + 25 + Math.random() * (tubeBot - baseLevel - 50);
+    arr.push(createParticle(x, y, "glucose", "right"));
+  }
+}
+
+/** Calculate glucose particle count from multiplier (visual, not real count) */
+function glucoseVisualCount(mult) {
+  return Math.max(1, Math.round(mult * 4));
+}
+
+/* ============================================================
+ *  CANVAS SETUP & RESIZE
+ * ============================================================ */
+function setupCanvas(canvas) {
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  const w = rect.width;
+  const h = parseInt(canvas.getAttribute("height")) || 260;
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  canvas.style.height = h + "px";
+  const ctx = canvas.getContext("2d");
+  ctx.scale(dpr, dpr);
+  return { ctx, w, h };
+}
+
+const canvasCache = {};
+
+function getCanvasInfo(id) {
+  if (!canvasCache[id] || canvasCache[id].stale) {
+    const canvas = document.getElementById(id);
+    if (!canvas) return null;
+    const info = setupCanvas(canvas);
+    info.canvas = canvas;
+    info.stale = false;
+    canvasCache[id] = info;
+  }
+  return canvasCache[id];
+}
+
+function markAllCanvasStale() {
+  for (const k in canvasCache) canvasCache[k].stale = true;
+}
+
+/* ============================================================
+ *  DRAWING HELPERS
+ * ============================================================ */
+
+/** Draw a water molecule (small circle) */
+function drawWaterParticle(ctx, x, y, type) {
+  ctx.beginPath();
+  const r = SIM.WATER_RADIUS;
+  if (type === "water_gas") {
+    ctx.arc(x, y, r - 0.5, 0, Math.PI * 2);
+    ctx.fillStyle = SIM.WATER_COLOR_GAS;
+  } else if (type === "water_solid") {
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fillStyle = SIM.WATER_COLOR_SOLID;
+  } else {
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fillStyle = SIM.WATER_COLOR_LIQ;
+  }
+  ctx.fill();
+}
+
+/** Draw a glucose molecule (hexagon, slightly larger, muted color) */
+function drawGlucoseParticle(ctx, x, y) {
+  const r = SIM.GLUCOSE_RADIUS;
+  ctx.beginPath();
+  for (let i = 0; i < 6; i++) {
+    const angle = (Math.PI / 3) * i - Math.PI / 6;
+    const px = x + r * Math.cos(angle);
+    const py = y + r * Math.sin(angle);
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.closePath();
+  ctx.fillStyle = SIM.GLUCOSE_COLOR;
+  ctx.fill();
+  ctx.strokeStyle = SIM.GLUCOSE_STROKE;
+  ctx.lineWidth = 0.8;
+  ctx.stroke();
+}
+
+/** Draw a single particle by type */
+function drawParticle(ctx, p) {
+  if (p.type === "glucose") {
+    drawGlucoseParticle(ctx, p.x, p.y);
+  } else {
+    drawWaterParticle(ctx, p.x, p.y, p.type);
+  }
+}
+
+function drawArrow(ctx, x1, y1, x2, y2, color, lw) {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = lw;
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
+  const angle = Math.atan2(y2 - y1, x2 - x1);
+  const headLen = 5;
+  ctx.beginPath();
+  ctx.moveTo(x2, y2);
+  ctx.lineTo(x2 - headLen * Math.cos(angle - 0.5), y2 - headLen * Math.sin(angle - 0.5));
+  ctx.lineTo(x2 - headLen * Math.cos(angle + 0.5), y2 - headLen * Math.sin(angle + 0.5));
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.fill();
+}
+
+/* ============================================================
+ *  PARTICLE PHYSICS UPDATE
+ * ============================================================ */
+function updateParticle(p, w, h, bounds, speedMult) {
+  const sm = speedMult || 1;
+  p.phase += 0.02;
+  p.x += p.vx * sm;
+  p.y += p.vy * sm;
+
+  // Slight jitter for solid particles
+  if (p.type === "water_solid") {
+    p.x += Math.sin(p.phase) * 0.15;
+    p.y += Math.cos(p.phase * 1.3) * 0.15;
+  }
+
+  // Bouncing within bounds
+  const r = p.type === "glucose" ? SIM.GLUCOSE_RADIUS : SIM.WATER_RADIUS;
+  const b = bounds || { x1: r, y1: r, x2: w - r, y2: h - r };
+  if (p.x < b.x1) { p.x = b.x1; p.vx = Math.abs(p.vx); }
+  if (p.x > b.x2) { p.x = b.x2; p.vx = -Math.abs(p.vx); }
+  if (p.y < b.y1) { p.y = b.y1; p.vy = Math.abs(p.vy); }
+  if (p.y > b.y2) { p.y = b.y2; p.vy = -Math.abs(p.vy); }
+
+  // Random direction changes
+  if (Math.random() < 0.02) { p.vx += (Math.random() - 0.5) * 0.3 * sm; }
+  if (Math.random() < 0.02) { p.vy += (Math.random() - 0.5) * 0.3 * sm; }
+
+  // Speed limit
+  const maxSpd = p.type === "water_gas" ? 2.5 : (p.type === "water_solid" ? 0.2 : 1.2);
+  const spd = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+  if (spd > maxSpd * sm) {
+    p.vx = (p.vx / spd) * maxSpd * sm;
+    p.vy = (p.vy / spd) * maxSpd * sm;
+  }
+}
+
+/* ============================================================
+ *  STEP 1: VAPOR-LIQUID EQUILIBRIUM DRAWING
+ * ============================================================ */
+function drawVaporLiquid(canvasId, particleArr, isolution, moles, time) {
+  const info = getCanvasInfo(canvasId);
+  if (!info) return;
+  const { ctx, w, h } = info;
+
+  const liquidY = h * 0.55;  // surface level
+
+  // Clear
+  ctx.fillStyle = SIM.BG_COLOR;
+  ctx.fillRect(0, 0, w, h);
+
+  // Gas region (darker)
+  ctx.fillStyle = "rgba(20,20,40,1)";
+  ctx.fillRect(0, 0, w, liquidY);
+
+  // Liquid region
+  ctx.fillStyle = isolution ? "rgba(74,144,217,0.10)" : "rgba(74,144,217,0.14)";
+  ctx.fillRect(0, liquidY, w, h - liquidY);
+
+  // Surface line
+  ctx.strokeStyle = "rgba(100,160,220,0.4)";
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 3]);
+  ctx.beginPath();
+  ctx.moveTo(0, liquidY);
+  ctx.lineTo(w, liquidY);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Surface label
+  ctx.fillStyle = "rgba(100,160,220,0.5)";
+  ctx.font = "9px sans-serif";
+  ctx.fillText("液面", 3, liquidY - 4);
+
+  // Gas label
+  ctx.fillStyle = "rgba(200,200,220,0.3)";
+  ctx.font = "9px sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("気相", w / 2, 14);
+
+  // Liquid label
+  ctx.fillText("液相", w / 2, h - 6);
+  ctx.textAlign = "start";
+
+  // Evaporation/condensation visual effect near surface
+  const evapProb = isolution ? 0.008 * (1 - (moles / (BASE_MOLES * 5))) : 0.012;
+  const condProb = 0.01;
+
+  // Temperature-based speed multiplier
+  const temp = state.step1.temperature;
+  const tempFactor = 0.7 + (temp - 99.5) * 0.6;
+
+  // Update and draw particles
+  for (const p of particleArr) {
+    if (p.region === "liquid") {
+      updateParticle(p, w, h, {
+        x1: SIM.WATER_RADIUS, y1: liquidY + 3,
+        x2: w - SIM.WATER_RADIUS, y2: h - SIM.WATER_RADIUS
+      }, tempFactor);
+
+      // Evaporation attempt (water near surface)
+      if (p.type === "water_liquid" && p.y < liquidY + 18 && Math.random() < evapProb * tempFactor) {
+        p.type = "water_gas";
+        p.region = "gas";
+        p.y = liquidY - 10;
+        p.vy = -Math.abs(p.vy) - 0.5;
+        p.vx = (Math.random() - 0.5) * 2;
+      }
+    } else if (p.region === "gas") {
+      updateParticle(p, w, h, {
+        x1: SIM.WATER_RADIUS, y1: SIM.WATER_RADIUS,
+        x2: w - SIM.WATER_RADIUS, y2: liquidY - 3
+      }, tempFactor);
+
+      // Condensation attempt (gas near surface)
+      if (p.type === "water_gas" && p.y > liquidY - 15 && Math.random() < condProb) {
+        p.type = "water_liquid";
+        p.region = "liquid";
+        p.y = liquidY + 10;
+        p.vy = Math.abs(p.vy) * 0.3;
+      }
+    }
+    drawParticle(ctx, p);
+  }
+
+  // Evaporation arrows (visual)
+  if (Math.sin(time * 0.03) > 0.3) {
+    const arrowX = w * 0.3 + Math.sin(time * 0.01) * 10;
+    drawArrow(ctx, arrowX, liquidY + 8, arrowX, liquidY - 15, "rgba(239,68,68,0.35)", 1);
+  }
+  if (Math.sin(time * 0.03 + 1) > 0.3) {
+    const arrowX2 = w * 0.7 + Math.cos(time * 0.012) * 10;
+    drawArrow(ctx, arrowX2, liquidY - 18, arrowX2, liquidY + 5, "rgba(59,130,246,0.35)", 1);
+  }
+}
+
+/* ============================================================
+ *  STEP 2: SOLID-LIQUID EQUILIBRIUM DRAWING
+ * ============================================================ */
+function drawFreezingModel(canvasId, particleArr, hasGlucose, moles, temp) {
+  const info = getCanvasInfo(canvasId);
+  if (!info) return;
+  const { ctx, w, h } = info;
+
+  const boundaryBase = h * 0.55;
+  const fp = hasGlucose ? freezingPointSolution(moles) : 0.0;
+  const diff = temp - fp;
+  const boundaryShift = diff * 30;
+  const boundary = Math.max(h * 0.25, Math.min(h * 0.8, boundaryBase + boundaryShift));
+
+  ctx.fillStyle = SIM.BG_COLOR;
+  ctx.fillRect(0, 0, w, h);
+
+  // Liquid region (upper)
+  ctx.fillStyle = "rgba(74,144,217,0.10)";
+  ctx.fillRect(0, 0, w, boundary);
+
+  // Solid region (lower)
+  ctx.fillStyle = "rgba(46,92,138,0.15)";
+  ctx.fillRect(0, boundary, w, h - boundary);
+
+  // Boundary line
+  ctx.strokeStyle = "rgba(100,160,220,0.4)";
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([4, 3]);
+  ctx.beginPath();
+  ctx.moveTo(0, boundary);
+  ctx.lineTo(w, boundary);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Labels
+  ctx.fillStyle = "rgba(200,200,220,0.4)";
+  ctx.font = "9px sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("液体", w / 2, 14);
+  ctx.fillText("固体", w / 2, h - 6);
+  ctx.textAlign = "start";
+
+  const speedFactor = Math.max(0.3, 0.7 + temp * 0.5);
+  const freezeRate = Math.max(0, 0.005 - diff * 0.005);
+  const meltRate = Math.max(0, 0.005 + diff * 0.005);
+
+  // Update and draw particles
+  for (const p of particleArr) {
+    if (p.region === "liquid") {
+      updateParticle(p, w, h, {
+        x1: SIM.WATER_RADIUS, y1: SIM.WATER_RADIUS,
+        x2: w - SIM.WATER_RADIUS, y2: boundary - 3
+      }, speedFactor);
+
+      // Freezing: liquid water near boundary → solid
+      if (p.type === "water_liquid" && p.y > boundary - 15 && Math.random() < freezeRate) {
+        p.type = "water_solid";
+        p.region = "solid";
+        p.y = boundary + 10;
+        p.vx *= 0.05;
+        p.vy *= 0.05;
+      }
+    } else if (p.region === "solid") {
+      updateParticle(p, w, h, {
+        x1: SIM.WATER_RADIUS, y1: boundary + 3,
+        x2: w - SIM.WATER_RADIUS, y2: h - SIM.WATER_RADIUS
+      }, 0.15);
+
+      // Melting: solid water near boundary → liquid
+      if (p.type === "water_solid" && p.y < boundary + 15 && Math.random() < meltRate) {
+        p.type = "water_liquid";
+        p.region = "liquid";
+        p.y = boundary - 10;
+        p.vx = (Math.random() - 0.5) * 0.8;
+        p.vy = (Math.random() - 0.5) * 0.8;
+      }
+    }
+    drawParticle(ctx, p);
+  }
+
+  // Freezing/Melting arrows near boundary
+  const arrowAlpha = 0.3;
+  if (freezeRate > 0.001) {
+    drawArrow(ctx, w * 0.3, boundary - 12, w * 0.3, boundary + 12,
+      `rgba(99,102,241,${arrowAlpha})`, 1.5);
+    ctx.fillStyle = `rgba(99,102,241,${arrowAlpha})`;
+    ctx.font = "8px sans-serif";
+    ctx.fillText("凝固", w * 0.3 + 5, boundary - 3);
+  }
+  if (meltRate > 0.001) {
+    drawArrow(ctx, w * 0.7, boundary + 12, w * 0.7, boundary - 12,
+      `rgba(245,158,11,${arrowAlpha})`, 1.5);
+    ctx.fillStyle = `rgba(245,158,11,${arrowAlpha})`;
+    ctx.font = "8px sans-serif";
+    ctx.fillText("融解", w * 0.7 + 5, boundary + 10);
+  }
+}
+
+/* ============================================================
+ *  STEP 3: OSMOSIS U-TUBE DRAWING (ENHANCED GEOMETRY & WALLS)
+ * ============================================================ */
+function drawOsmosisModel(time) {
+  const info = getCanvasInfo("cvOsmosis");
+  if (!info) return;
+  const { ctx, w, h } = info;
+
+  const s3 = state.step3;
+  const moles = getMoles(s3.mult);
+
+  // U-tube layout parameters (Height 380px ensures spacious rendering)
+  const memX = w * 0.5;
+  const tubeWidth = Math.min(w * 0.38, 140);
+  const leftX1 = memX - tubeWidth;
+  const rightX2 = memX + tubeWidth;
+  const tubeTop = 55;
+  const tubeBot = h - 25;
+  const baseLevel = 190;
+  
+  // Membrane is situated ONLY at bottom connecting channel
+  const membraneTop = tubeBot - 65;
+  const membraneBot = tubeBot - 5;
+
+  // Calculate target level difference
+  const osmP = osmoticPressure(moles, s3.temperature);
+  const maxVisualDiff = 110; // max total delta h in pixels
+  const normalizedP = Math.min(osmP / (BASE_MOLES * 4 * R_GAS * (30 + 273.15)), 1);
+  s3.targetDiff = normalizedP * maxVisualDiff;
+
+  // Animate smoothly toward target
+  s3.levelDiff += (s3.targetDiff - s3.levelDiff) * 0.012;
+  if (Math.abs(s3.levelDiff - s3.targetDiff) < 1.0) {
+    s3.equilibrium = Math.min(1, s3.equilibrium + 0.008);
+  } else {
+    s3.equilibrium = Math.max(0, s3.equilibrium - 0.015);
+  }
+
+  // Left goes down, Right goes up (strictly bounded)
+  const leftLevel = baseLevel + s3.levelDiff * 0.5;
+  const rightLevel = baseLevel - s3.levelDiff * 0.5;
+
+  // Clear background
+  ctx.fillStyle = SIM.BG_COLOR;
+  ctx.fillRect(0, 0, w, h);
+
+  // 1. Draw Liquid Bodies
+  // Left liquid column (pure water)
+  ctx.fillStyle = "rgba(74,144,217,0.13)";
+  ctx.beginPath();
+  ctx.moveTo(leftX1 + 2, leftLevel);
+  ctx.lineTo(memX - 2, leftLevel);
+  ctx.lineTo(memX - 2, tubeBot - 2);
+  ctx.lineTo(leftX1 + 2, tubeBot - 2);
+  ctx.closePath();
+  ctx.fill();
+
+  // Right liquid column (glucose solution)
+  ctx.fillStyle = "rgba(74,144,217,0.09)";
+  ctx.beginPath();
+  ctx.moveTo(memX + 2, rightLevel);
+  ctx.lineTo(rightX2 - 2, rightLevel);
+  ctx.lineTo(rightX2 - 2, tubeBot - 2);
+  ctx.lineTo(memX + 2, tubeBot - 2);
+  ctx.closePath();
+  ctx.fill();
+
+  // Bottom bridge liquid connection (below membraneTop)
+  ctx.fillStyle = "rgba(74,144,217,0.11)";
+  ctx.fillRect(memX - 4, membraneTop, 8, membraneBot - membraneTop);
+
+  // 2. Draw U-Tube Glass Frame
+  ctx.strokeStyle = "rgba(203, 213, 225, 0.7)";
+  ctx.lineWidth = 2.5;
+
+  // Outer U-Tube Wall
+  ctx.beginPath();
+  ctx.moveTo(leftX1, tubeTop);
+  ctx.lineTo(leftX1, tubeBot);
+  ctx.lineTo(rightX2, tubeBot);
+  ctx.lineTo(rightX2, tubeTop);
+  ctx.stroke();
+
+  // Top Open Rims (Left & Right)
+  ctx.strokeStyle = "rgba(203, 213, 225, 0.4)";
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.ellipse((leftX1 + memX - 3) / 2, tubeTop, (memX - leftX1 - 3) / 2, 4, 0, 0, Math.PI * 2);
+  ctx.ellipse((memX + 3 + rightX2) / 2, tubeTop, (rightX2 - memX - 3) / 2, 4, 0, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // 3. Central Solid Partition Wall (中央隔壁・上部から半透膜上端まで)
+  ctx.fillStyle = "rgba(148, 163, 184, 0.25)";
+  ctx.fillRect(memX - 3, tubeTop, 6, membraneTop - tubeTop);
+
+  ctx.strokeStyle = "rgba(203, 213, 225, 0.85)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(memX - 3, tubeTop);
+  ctx.lineTo(memX - 3, membraneTop);
+  ctx.moveTo(memX + 3, tubeTop);
+  ctx.lineTo(memX + 3, membraneTop);
+  ctx.stroke();
+
+  // Label for Central Solid Wall
+  ctx.fillStyle = "rgba(148, 163, 184, 0.75)";
+  ctx.font = "9px sans-serif";
+  ctx.textAlign = "center";
+  ctx.save();
+  ctx.translate(memX, tubeTop + 45);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText("中央容器壁（不透過）", 0, -6);
+  ctx.restore();
+
+  // 4. Semipermeable Membrane at Bottom (小型・底部のみ配置)
+  ctx.fillStyle = SIM.MEMBRANE_COLOR;
+  ctx.globalAlpha = 0.8;
+  ctx.fillRect(memX - 3, membraneTop, 6, membraneBot - membraneTop);
+  ctx.globalAlpha = 1.0;
+
+  // Semipermeable membrane porous texture (網目・穴の表現)
+  ctx.strokeStyle = "#ffffff";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let my = membraneTop + 6; my < membraneBot; my += 8) {
+    ctx.moveTo(memX - 3, my);
+    ctx.lineTo(memX + 3, my);
+  }
+  ctx.stroke();
+
+  // Semipermeable membrane outer border
+  ctx.strokeStyle = "#dc2626";
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(memX - 3, membraneTop, 6, membraneBot - membraneTop);
+
+  // Label for Membrane
+  ctx.fillStyle = "#ef4444";
+  ctx.font = "bold 9px sans-serif";
+  ctx.fillText("半透膜", memX, membraneBot + 14);
+
+  // 5. Liquid Meniscus Lines & Markers
+  // Left Liquid Surface
+  ctx.strokeStyle = "#38bdf8";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(leftX1 + 2, leftLevel);
+  ctx.lineTo(memX - 3, leftLevel);
+  ctx.stroke();
+
+  // Right Liquid Surface
+  ctx.strokeStyle = "#f59e0b";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(memX + 3, rightLevel);
+  ctx.lineTo(rightX2 - 2, rightLevel);
+  ctx.stroke();
+
+  // Column Labels at Top
+  ctx.fillStyle = "rgba(226, 232, 240, 0.9)";
+  ctx.font = "bold 11px sans-serif";
+  ctx.fillText("純水側（溶媒）", (leftX1 + memX) / 2, tubeTop - 14);
+  ctx.fillText("グルコース水溶液側", (memX + rightX2) / 2, tubeTop - 14);
+
+  // Level Difference (Δh) Indicator & Atmospheric Pressure Arrows
+  if (s3.levelDiff > 4) {
+    // Reference dashed line from left level
+    ctx.strokeStyle = "rgba(251, 191, 36, 0.55)";
+    ctx.lineWidth = 1.2;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(leftX1 + 10, leftLevel);
+    ctx.lineTo(rightX2 + 25, leftLevel);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(memX + 10, rightLevel);
+    ctx.lineTo(rightX2 + 25, rightLevel);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Δh vertical dimension arrow
+    const dimX = rightX2 + 18;
+    drawArrow(ctx, dimX, leftLevel, dimX, rightLevel, "#fbbf24", 1.8);
+    drawArrow(ctx, dimX, rightLevel, dimX, leftLevel, "#fbbf24", 1.8);
+    
+    ctx.fillStyle = "#fbbf24";
+    ctx.font = "bold 10px sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText("液面差 Δh", dimX + 6, (leftLevel + rightLevel) / 2 + 3);
+  }
+
+  // 6. Update and Draw Particles
+  // Dynamic crossing probabilities
+  const fwdProb = 0.012; // Pure water -> Solution
+  const revProb = 0.003 + (s3.levelDiff / maxVisualDiff) * 0.009; // Solution -> Pure water (driven by delta h pressure)
+
+  for (const p of particles.osmosis) {
+    // Boundary collision based on region
+    let bounds;
+    if (p.region === "left") {
+      bounds = {
+        x1: leftX1 + 5,
+        y1: leftLevel + 4,
+        x2: (p.y >= membraneTop && p.y <= membraneBot) ? memX + 15 : memX - 5,
+        y2: tubeBot - 6
+      };
+    } else {
+      bounds = {
+        x1: (p.type === "water_liquid" && p.y >= membraneTop && p.y <= membraneBot) ? memX - 15 : memX + 5,
+        y1: rightLevel + 4,
+        x2: rightX2 - 5,
+        y2: tubeBot - 6
+      };
+    }
+
+    updateParticle(p, w, h, bounds, 0.85);
+
+    // Water crossing through the bottom membrane window ONLY
+    if (p.type === "water_liquid" && p.y >= membraneTop && p.y <= membraneBot) {
+      if (p.region === "left" && p.x >= memX - 4) {
+        if (Math.random() < fwdProb) {
+          p.region = "right";
+          p.x = memX + 8;
+          p.vx = Math.abs(p.vx) + 0.3;
+        }
+      } else if (p.region === "right" && p.x <= memX + 4) {
+        if (Math.random() < revProb) {
+          p.region = "left";
+          p.x = memX - 8;
+          p.vx = -Math.abs(p.vx) - 0.3;
+        }
+      }
+    }
+
+    // Glucose can NEVER cross membrane (bounce back if near bottom window)
+    if (p.type === "glucose") {
+      if (p.x < memX + 8) {
+        p.x = memX + 10;
+        p.vx = Math.abs(p.vx) + 0.2;
+      }
+    }
+
+    drawParticle(ctx, p);
+  }
+
+  // Visual flow guidance arrow at the bottom membrane
+  if (s3.equilibrium < 0.85) {
+    const arrowAlpha = 0.45 * (1 - s3.equilibrium * 0.8);
+    drawArrow(ctx, memX - 22, (membraneTop + membraneBot) / 2, memX + 22, (membraneTop + membraneBot) / 2, `rgba(56, 189, 248, ${arrowAlpha})`, 2.5);
+  }
+}
+
+/* ============================================================
+ *  UI UPDATE FUNCTIONS (CRYSTAL CLEAR EDUCATIONAL METERS)
+ * ============================================================ */
+
+/** Update Step 1 displays */
+function updateStep1UI() {
+  const s1 = state.step1;
+  const moles = getMoles(s1.mult);
+  const m = getMolality(moles);
+  const dtb = boilingPointElevation(moles);
+  const bp = boilingPointSolution(moles);
+  const xw = getMoleFractionSolvent(moles);
+  const vpDrop = (1 - xw) * 100; // percentage drop
+
+  document.getElementById("nMoles1").textContent = moles.toFixed(3) + " mol";
+  document.getElementById("nMolality1").textContent = m.toFixed(3) + " mol/kg";
+  document.getElementById("nBPrise1").textContent = dtb.toFixed(4) + " ℃";
+  document.getElementById("nVPdrop1").textContent = vpDrop.toFixed(3) + " %";
+
+  const btnSnapBp = document.getElementById("btnSnapBp1");
+  if (btnSnapBp) {
+    btnSnapBp.textContent = `溶液の沸点（${bp.toFixed(2)} ℃）に設定`;
+  }
+
+  // Formula calculations
+  document.getElementById("formulaCalc1").innerHTML =
+    `ΔT<sub>b</sub> = 0.512 × ${m.toFixed(3)} = <strong>${dtb.toFixed(4)} ℃</strong>　→　沸点 ≈ ${bp.toFixed(2)} ℃`;
+  document.getElementById("formulaCalcVP1").innerHTML =
+    `x<sub>水</sub> ≈ ${xw.toFixed(4)} → 蒸気圧は純水の約 ${(xw * 100).toFixed(2)} %`;
+
+  // Temperature display
+  document.getElementById("tempVal1").textContent = s1.temperature.toFixed(2) + " ℃";
+
+  // Detailed status & rate comparison
+  const temp = s1.temperature;
+  const isBoilingPure = temp >= 100.0;
+  const isBoilingSolution = temp >= bp;
+
+  let txt = "";
+  if (isBoilingSolution) {
+    txt = `現在の温度（${temp.toFixed(2)} ℃）は溶液の沸点（${bp.toFixed(2)} ℃）以上です。純水も溶液も液体内部から激しく気化（沸騰）しています。`;
+  } else if (isBoilingPure) {
+    txt = `現在の温度（${temp.toFixed(2)} ℃）では、純水は蒸気圧が外圧に達して沸騰していますが、グルコース水溶液は蒸気圧降下のためまだ沸騰していません（沸騰にはあと ${(bp - temp).toFixed(3)} ℃ 必要）。`;
+  } else {
+    txt = `液面付近の水分子が気化して気相へ飛び出す「蒸発」と、気相の気体分子が液面に戻る「凝縮」が同時に起きています。グルコース分子が液面の一部を占めるため、溶液側の蒸発速度は純水より小さくなります。`;
+  }
+  document.getElementById("statusText1").textContent = txt;
+
+  // Rate bars calculation
+  const tempFactor = 0.5 + (temp - 99.5) * 0.5;
+  const evapPurePct = Math.round(Math.min(100, Math.max(20, tempFactor * 70)));
+  const condPurePct = evapPurePct; // Equilibrium
+
+  const soluteFactor = Math.max(0.3, 1 - moles * 0.7);
+  const evapSolPct = Math.round(evapPurePct * soluteFactor);
+  const condSolPct = evapSolPct; // Equilibrium at lower vapor pressure
+
+  document.getElementById("evapBarL").style.width = evapPurePct + "%";
+  document.getElementById("evapValL").textContent = evapPurePct + "%";
+  document.getElementById("condBarL").style.width = condPurePct + "%";
+  document.getElementById("condValL").textContent = condPurePct + "%";
+
+  document.getElementById("evapBarR").style.width = evapSolPct + "%";
+  document.getElementById("evapValR").textContent = evapSolPct + "%";
+  document.getElementById("condBarR").style.width = condSolPct + "%";
+  document.getElementById("condValR").textContent = condSolPct + "%";
+
+  document.getElementById("relVaporL").textContent = "蒸発速度 ＝ 凝縮速度（気液平衡）";
+  document.getElementById("relVaporR").textContent = `蒸発速度 ＝ 凝縮速度（純水の ${Math.round(soluteFactor * 100)} % で気液平衡）`;
+}
+
+/** Update Step 2 displays */
+function updateStep2UI() {
+  const s2 = state.step2;
+  const moles = getMoles(s2.mult);
+  const m = getMolality(moles);
+  const dtf = freezingPointDepression(moles);
+  const fp = freezingPointSolution(moles);
+  const temp = s2.temperature;
+
+  document.getElementById("nMoles2").textContent = moles.toFixed(3) + " mol";
+  document.getElementById("nMolality2").textContent = m.toFixed(3) + " mol/kg";
+  document.getElementById("nFPdrop2").textContent = dtf.toFixed(3) + " ℃";
+  document.getElementById("nFP2").textContent = fp.toFixed(3) + " ℃";
+  document.getElementById("tempVal2").textContent = temp.toFixed(2) + " ℃";
+
+  const btnSnap = document.getElementById("btnSnapFp2");
+  if (btnSnap) {
+    btnSnap.textContent = `溶液の凝固点（${fp.toFixed(2)} ℃）に設定`;
+  }
+
+  // Formula calculation
+  document.getElementById("formulaCalc2").innerHTML =
+    `ΔT<sub>f</sub> = 1.86 × ${m.toFixed(3)} = <strong>${dtf.toFixed(3)} ℃</strong>　→　凝固点 ≈ ${fp.toFixed(2)} ℃`;
+
+  const diffPure = temp - 0.0;
+  const diffSol = temp - fp;
+  const isPureEq = Math.abs(diffPure) < 0.008;
+  const isSolEq = Math.abs(diffSol) < 0.008;
+
+  // Pure water rate bars (baseline 50% at 0.00 ℃)
+  let freezePurePct, meltPurePct;
+  if (isPureEq) {
+    freezePurePct = 50;
+    meltPurePct = 50;
+  } else if (diffPure > 0) {
+    freezePurePct = Math.round(Math.max(10, Math.min(95, 50 - diffPure * 35)));
+    meltPurePct = Math.round(Math.max(10, Math.min(95, 50 + diffPure * 35)));
+    if (freezePurePct >= meltPurePct) freezePurePct = meltPurePct - 1;
+  } else {
+    freezePurePct = Math.round(Math.max(10, Math.min(95, 50 - diffPure * 35)));
+    meltPurePct = Math.round(Math.max(10, Math.min(95, 50 + diffPure * 35)));
+    if (meltPurePct >= freezePurePct) meltPurePct = freezePurePct - 1;
+  }
+  document.getElementById("freezeBarL").style.width = freezePurePct + "%";
+  document.getElementById("freezeValL").textContent = freezePurePct + "%";
+  document.getElementById("meltBarL").style.width = meltPurePct + "%";
+  document.getElementById("meltValL").textContent = meltPurePct + "%";
+
+  if (isPureEq) {
+    document.getElementById("badgeFreezeL").className = "rate-badge eq";
+    document.getElementById("badgeFreezeL").textContent = "固液平衡";
+    document.getElementById("relFreezeL").textContent = "凝固速度 ＝ 融解速度（動的平衡）";
+  } else if (diffPure > 0) {
+    document.getElementById("badgeFreezeL").className = "rate-badge diff";
+    document.getElementById("badgeFreezeL").textContent = "融解優勢";
+    document.getElementById("relFreezeL").textContent = "融解速度 ＞ 凝固速度（氷が減少）";
+  } else {
+    document.getElementById("badgeFreezeL").className = "rate-badge diff";
+    document.getElementById("badgeFreezeL").textContent = "凝固優勢";
+    document.getElementById("relFreezeL").textContent = "凝固速度 ＞ 融解速度（氷が増加）";
+  }
+
+  // Solution rate bars:
+  // At the solution freezing point (fp = -dtf), freezing and melting rates must be EQUAL.
+  // The rate at fp is lower than 50% because solute hinders freezing lattice formation.
+  const baseRateAtFp = Math.max(15, 50 - 28 * dtf);
+  let freezeSolPct, meltSolPct;
+  if (isSolEq) {
+    freezeSolPct = Math.round(baseRateAtFp);
+    meltSolPct = Math.round(baseRateAtFp);
+  } else if (diffSol > 0) {
+    // Temperature above fp: melting rate increases, freezing is lower -> ice melts
+    freezeSolPct = Math.round(Math.max(10, Math.min(95, baseRateAtFp - diffSol * 25)));
+    meltSolPct = Math.round(Math.max(10, Math.min(95, baseRateAtFp + diffSol * 35)));
+    if (freezeSolPct >= meltSolPct) freezeSolPct = meltSolPct - 1;
+  } else {
+    // Temperature below fp: melting rate drops faster -> freezing favored
+    freezeSolPct = Math.round(Math.max(10, Math.min(95, baseRateAtFp - diffSol * 25)));
+    meltSolPct = Math.round(Math.max(10, Math.min(95, baseRateAtFp + diffSol * 35)));
+    if (meltSolPct >= freezeSolPct) meltSolPct = freezeSolPct - 1;
+  }
+
+  document.getElementById("freezeBarR").style.width = freezeSolPct + "%";
+  document.getElementById("freezeValR").textContent = freezeSolPct + "%";
+  document.getElementById("meltBarR").style.width = meltSolPct + "%";
+  document.getElementById("meltValR").textContent = meltSolPct + "%";
+
+  let txt = "";
+  if (isSolEq) {
+    document.getElementById("badgeFreezeR").className = "rate-badge eq";
+    document.getElementById("badgeFreezeR").textContent = "新平衡";
+    document.getElementById("relFreezeR").textContent = "凝固速度 ＝ 融解速度（新しい固液平衡）";
+    txt = `溶液の凝固点（${fp.toFixed(2)} ℃）に達しました！温度が下がったことで融解速度が低下し、溶質により低下していた凝固速度（${freezeSolPct}%）と再び一致して、新しい動的平衡が成立しています。`;
+  } else if (diffSol > 0) {
+    document.getElementById("badgeFreezeR").className = "rate-badge diff";
+    document.getElementById("badgeFreezeR").textContent = "融解優勢";
+    document.getElementById("relFreezeR").textContent = "融解速度 ＞ 凝固速度（氷が溶ける）";
+    txt = `現在の温度（${temp.toFixed(2)} ℃）は溶液の凝固点（${fp.toFixed(2)} ℃）より高いため、溶質粒子が凝固を妨げる結果「融解速度 ＞ 凝固速度」となり氷が溶けていきます。平衡にするには温度を下げてください。`;
+  } else {
+    document.getElementById("badgeFreezeR").className = "rate-badge diff";
+    document.getElementById("badgeFreezeR").textContent = "凝固優勢";
+    document.getElementById("relFreezeR").textContent = "凝固速度 ＞ 融解速度（凍結進行中）";
+    txt = `現在の温度（${temp.toFixed(2)} ℃）は溶液の凝固点（${fp.toFixed(2)} ℃）より低いため、融解速度が大きく低下し「凝固速度 ＞ 融解速度」となって凍結が進みます。`;
+  }
+  document.getElementById("statusText2").textContent = txt;
+}
+
+/** Update Step 3 displays */
+function updateStep3UI() {
+  const s3 = state.step3;
+  const moles = getMoles(s3.mult);
+  const tempC = s3.temperature;
+  const tempK = tempC + 273.15;
+  const osmP = osmoticPressure(moles, tempC);
+  const osmAtm = osmP / ATM_PA;
+
+  document.getElementById("nMoles3").textContent = moles.toFixed(3) + " mol";
+  document.getElementById("nTemp3").textContent = tempK.toFixed(2) + " K";
+  document.getElementById("nOsmP3").textContent = (osmP / 1000).toFixed(1) + " kPa";
+  document.getElementById("tempVal3").textContent = tempC.toFixed(1) + " ℃";
+
+  // Formula calculation
+  const c = getMolality(moles);
+  document.getElementById("formulaCalc3").innerHTML =
+    `Π = ${c.toFixed(3)} × 8.314 × ${tempK.toFixed(1)} = <strong>${(osmP / 1000).toFixed(1)} kPa</strong>（≈ ${osmAtm.toFixed(2)} atm）`;
+
+  // Flow rates
+  const fwdRatePct = Math.round(50 + moles * 30);
+  const maxDiff = 110;
+  const currentDiffRatio = Math.min(1, s3.levelDiff / Math.max(1, s3.targetDiff));
+  const revRatePct = Math.round(20 + currentDiffRatio * (fwdRatePct - 20));
+
+  document.getElementById("flowFwdBar").style.width = fwdRatePct + "%";
+  document.getElementById("flowFwdVal").textContent = fwdRatePct + "%";
+  document.getElementById("flowRevBar").style.width = revRatePct + "%";
+  document.getElementById("flowRevVal").textContent = revRatePct + "%";
+
+  if (s3.equilibrium > 0.8) {
+    document.getElementById("nHeight3").textContent = "浸透平衡（Δh 一定）";
+    document.getElementById("badgeOsmosis").className = "rate-badge eq";
+    document.getElementById("badgeOsmosis").textContent = "浸透平衡";
+    document.getElementById("relOsmosis").textContent = "純水→溶液 ＝ 溶液→純水（両方向の移動速度が一致）";
+    document.getElementById("statusText3").textContent =
+      `浸透の動的平衡に達しました。液面差（Δh）によって生じる静水圧が水を押し戻す力となり、両方向の水の通過速度が等しくなっています。`;
+  } else {
+    document.getElementById("nHeight3").textContent = "浸透進行中…";
+    document.getElementById("badgeOsmosis").className = "rate-badge diff";
+    document.getElementById("badgeOsmosis").textContent = "浸透進行中";
+    document.getElementById("relOsmosis").textContent = "純水→溶液 ＞ 溶液→純水（溶液側の液面が上昇中）";
+    document.getElementById("statusText3").textContent =
+      `純水側からグルコース水溶液側へ優先的に水分子が半透膜を通過しています。溶液側の液面が徐々に上昇しています。`;
+  }
+}
+
+/* ============================================================
+ *  INITIALIZATION & RE-INITIALIZATION
+ * ============================================================ */
+function initStep1Particles() {
+  const infoL = getCanvasInfo("cvVaporL");
+  const infoR = getCanvasInfo("cvVaporR");
+  if (!infoL || !infoR) return;
+  initVaporParticles(particles.vaporL, infoL.w, infoL.h, 0);
+  initVaporParticles(particles.vaporR, infoR.w, infoR.h, glucoseVisualCount(state.step1.mult));
+}
+
+function initStep2Particles() {
+  const infoL = getCanvasInfo("cvFreezeL");
+  const infoR = getCanvasInfo("cvFreezeR");
+  if (!infoL || !infoR) return;
+  initFreezeParticles(particles.freezeL, infoL.w, infoL.h, 0);
+  initFreezeParticles(particles.freezeR, infoR.w, infoR.h, glucoseVisualCount(state.step2.mult));
+}
+
+function initStep3Particles() {
+  const info = getCanvasInfo("cvOsmosis");
+  if (!info) return;
+  initOsmosisParticles(particles.osmosis, info.w, info.h, glucoseVisualCount(state.step3.mult));
+  state.step3.levelDiff = 0;
+  state.step3.equilibrium = 0;
+}
+
+/* ============================================================
+ *  MAIN ANIMATION LOOP
+ * ============================================================ */
+let frameCount = 0;
+
+function animate() {
+  frameCount++;
+  const step = state.currentStep;
+
+  if (step === 1) {
+    state.step1.time = frameCount;
+    const moles = getMoles(state.step1.mult);
+    drawVaporLiquid("cvVaporL", particles.vaporL, false, 0, frameCount);
+    drawVaporLiquid("cvVaporR", particles.vaporR, true, moles, frameCount);
+    if (frameCount % 6 === 0) updateStep1UI();
+  } else if (step === 2) {
+    state.step2.time = frameCount;
+    const moles2 = getMoles(state.step2.mult);
+    drawFreezingModel("cvFreezeL", particles.freezeL, false, 0, state.step2.temperature);
+    drawFreezingModel("cvFreezeR", particles.freezeR, true, moles2, state.step2.temperature);
+    if (frameCount % 6 === 0) updateStep2UI();
+  } else if (step === 3) {
+    state.step3.time = frameCount;
+    drawOsmosisModel(frameCount);
+    if (frameCount % 6 === 0) updateStep3UI();
+  }
+
+  state.animationId = requestAnimationFrame(animate);
+}
+
+/* ============================================================
+ *  STEP NAVIGATION
+ * ============================================================ */
+function goToStep(n) {
+  state.currentStep = n;
+  state.visitedSteps.add(n);
+
+  document.querySelectorAll(".step-btn").forEach(btn => {
+    btn.classList.toggle("active", parseInt(btn.dataset.step) === n);
+  });
+
+  document.querySelectorAll(".step-section").forEach(sec => {
+    sec.classList.remove("active");
+  });
+  const sec = document.getElementById("step" + n);
+  if (sec) sec.classList.add("active");
+
+  markAllCanvasStale();
+  requestAnimationFrame(() => {
+    if (n === 1) { initStep1Particles(); updateStep1UI(); }
+    if (n === 2) { initStep2Particles(); updateStep2UI(); }
+    if (n === 3) { initStep3Particles(); updateStep3UI(); }
+  });
+
+  if (state.visitedSteps.has(1) && state.visitedSteps.has(2) && state.visitedSteps.has(3)) {
+    document.getElementById("colligativeNote").style.display = "";
+  }
+}
+
+/* ============================================================
+ *  EVENT HANDLERS
+ * ============================================================ */
+
+document.querySelectorAll(".step-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    goToStep(parseInt(btn.dataset.step));
+  });
+});
+
+function setupConcButtons(containerId, stepKey) {
+  const container = document.getElementById(containerId);
+  container.querySelectorAll(".conc-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      container.querySelectorAll(".conc-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      const mult = parseFloat(btn.dataset.mult);
+      state[stepKey].mult = mult;
+
+      markAllCanvasStale();
+      requestAnimationFrame(() => {
+        if (stepKey === "step1") { initStep1Particles(); updateStep1UI(); }
+        if (stepKey === "step2") { initStep2Particles(); updateStep2UI(); }
+        if (stepKey === "step3") { initStep3Particles(); updateStep3UI(); }
+      });
+    });
+  });
+}
+setupConcButtons("concBtns1", "step1");
+setupConcButtons("concBtns2", "step2");
+setupConcButtons("concBtns3", "step3");
+
+document.getElementById("tempSlider1").addEventListener("input", function() {
+  state.step1.temperature = parseFloat(this.value);
+  updateStep1UI();
+});
+
+document.getElementById("tempSlider2").addEventListener("input", function() {
+  state.step2.temperature = parseFloat(this.value);
+  updateStep2UI();
+});
+
+document.getElementById("tempSlider3").addEventListener("input", function() {
+  state.step3.temperature = parseFloat(this.value);
+  state.step3.equilibrium = Math.max(0, state.step3.equilibrium - 0.2);
+  updateStep3UI();
+});
+
+/** Preset temperature setter for Step 1 */
+function setTemp1(val) {
+  state.step1.temperature = val;
+  const slider = document.getElementById("tempSlider1");
+  if (slider) slider.value = val;
+  updateStep1UI();
+}
+function setTemp1ToBp() {
+  const moles = getMoles(state.step1.mult);
+  const bp = boilingPointSolution(moles);
+  setTemp1(parseFloat(bp.toFixed(2)));
+}
+
+/** Preset temperature setter for Step 2 */
+function setTemp2(val) {
+  state.step2.temperature = val;
+  const slider = document.getElementById("tempSlider2");
+  if (slider) slider.value = val;
+  updateStep2UI();
+}
+function setTemp2ToFp() {
+  const moles = getMoles(state.step2.mult);
+  const fp = freezingPointSolution(moles);
+  setTemp2(parseFloat(fp.toFixed(2)));
+}
+
+function handleResize() {
+  markAllCanvasStale();
+  const step = state.currentStep;
+  requestAnimationFrame(() => {
+    if (step === 1) initStep1Particles();
+    if (step === 2) initStep2Particles();
+    if (step === 3) initStep3Particles();
+  });
+}
+
+let resizeTimeout;
+window.addEventListener("resize", () => {
+  clearTimeout(resizeTimeout);
+  resizeTimeout = setTimeout(handleResize, 200);
+});
+
+/* ============================================================
+ *  INITIALIZATION
+ * ============================================================ */
+function init() {
+  goToStep(0);
+  animate();
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", init);
+} else {
+  init();
+}
+</script>
+</body>
+</html>
