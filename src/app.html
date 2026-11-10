@@ -406,6 +406,52 @@ footer.site .version {
   padding: 2px 6px; border-radius: 4px; margin-left: 6px; white-space: nowrap;
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+/* ---------- ver.3：出る・入る ---------- */
+:root { --c-out: #8a3fb4; --c-in: #157c8b; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --c-out: #c79bf0; --c-in: #4cc0cf; } }
+:root[data-theme="dark"] { --c-out: #c79bf0; --c-in: #4cc0cf; }
+.c-out { color: var(--c-out); font-weight: 700; }
+.c-in { color: var(--c-in); font-weight: 700; }
+.rates { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; }
+.rate-row { display: grid; grid-template-columns: minmax(8.5em, auto) 1fr 2.4em; gap: 8px; align-items: center; font-size: 13px; line-height: 1.4; }
+.rate-row .val { text-align: right; font-family: var(--f-num); font-size: 19px; font-weight: 700; }
+.rbar { position: relative; height: 14px; background: var(--bg); border-radius: 7px; }
+.rbar i { display: block; height: 100%; border-radius: 7px; }
+.rbar i.o { background: var(--c-out); }
+.rbar i.i { background: var(--c-in); }
+.rbar::after { content: ""; position: absolute; left: 76.92%; top: -3px; bottom: -3px; width: 2px; background: var(--ink); opacity: 0.55; }
+.rate-foot { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; color: var(--muted); min-height: 24px; }
+.rate-foot .state { font-size: 13px; font-weight: 700; border-radius: 999px; padding: 0 10px; border: 1px solid var(--line); }
+.rate-foot .tick-note { margin-left: auto; font-size: 12px; }
+.ov.tag { color: var(--ink); background: color-mix(in srgb, var(--surface) 85%, transparent); border-radius: 5px; padding: 0 5px; font-weight: 700; font-size: 12px; }
+.view { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; font-size: 14px; }
+.view .chip { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 2px 10px; }
+.view .chip.hot { border-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+.view .ar { color: var(--muted); }
+/* つなげる */
+.ctl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px 20px; align-items: center; }
+@media (max-width: 700px) { .ctl { grid-template-columns: minmax(0, 1fr); } }
+.cards4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 980px) { .cards4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .cards4 { grid-template-columns: minmax(0, 1fr); } }
+.pc { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.pc .who { font-size: 13px; color: var(--muted); }
+.pc h4 { font-family: var(--f-disp); font-size: 19px; }
+.pc .how { font-size: 13.5px; line-height: 1.55; }
+.pc .valrow { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; margin-top: auto; padding-top: 4px; }
+.pc .big-num { font-size: 25px; white-space: nowrap; }
+.pc .delta { font-size: 13px; color: var(--muted); }
+.pc .lock { height: 10px; background: var(--bg); border-radius: 5px; overflow: hidden; }
+.pc .lock i { display: block; height: 100%; background: var(--solute); transition: width 0.15s linear; }
+.pc .f { font-size: 15px; color: var(--muted); }
+.common { border: 2px solid var(--accent); background: var(--accent-soft); border-radius: 12px; padding: 12px 16px; display: flex; flex-direction: column; gap: 6px; }
+.common b.big { font-family: var(--f-disp); font-size: clamp(18px, 2.6vw, 22px); line-height: 1.5; }
+.times { font-size: 15px; }
+@media (max-width: 860px) { .rates { margin-top: 4px; padding: 5px 10px; gap: 2px; } .rate-row { font-size: 12px; } .rate-row .val { font-size: 17px; } .rbar { height: 11px; } .tick-note { display: none; } .rate-foot { min-height: 20px; } .rate-foot .state { font-size: 12px; } }
+textarea { font: inherit; color: inherit; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; width: 100%; min-height: 120px; resize: vertical; line-height: 1.7; }
+h3.sec { font-family: var(--f-disp); font-size: 22px; }
+footer.site a { color: inherit; }
 </style>
 <!--@ARTIFACT-HEAD-END-->
 </head>
@@ -414,573 +460,20 @@ footer.site .version {
 <header class="rail">
   <div class="rail-in">
     <div class="brand"><b>希薄溶液</b>の性質</div>
-    <nav class="steps" id="steps" aria-label="ステップ">
-      <button type="button" data-go="0"><span class="k">0</span><span class="t">はじめに</span></button>
-      <button type="button" data-go="1"><span class="k">1</span><span class="t">蒸気圧降下</span></button>
-      <button type="button" data-go="2"><span class="k">2</span><span class="t">沸点上昇</span></button>
-      <button type="button" data-go="3"><span class="k">3</span><span class="t">凝固点降下</span></button>
-      <button type="button" data-go="4"><span class="k">4</span><span class="t">浸透圧</span></button>
-      <button type="button" data-go="5"><span class="k">5</span><span class="t">まとめ</span></button>
-    </nav>
+    <nav class="steps" id="steps" aria-label="場面"></nav>
     <button type="button" class="help-btn" id="helpBtn">？ 使い方</button>
   </div>
 </header>
 
-<main>
-
-<!-- ================= STEP 0 はじめに ================= -->
-<section class="step" data-step="0">
-  <div class="head">
-    <div class="eyebrow">はじめに</div>
-    <h2>水に物質をとかすと、水の性質はどう変わる？</h2>
-    <p class="lead">水にグルコース（ブドウ糖）をとかした水溶液を、純粋な水（純水）とくらべます。分子のようすを動かして見ながら、4つの現象のしくみを1つずつ確かめましょう。</p>
-  </div>
-
-  <div class="hero">
-    <div class="howto card">
-      <h3>このアプリの使い方</h3>
-      <ol>
-        <li><span class="task-num n">1</span><p>図の横（スマホでは図の下）にある<b>「やること」</b>を見る。</p></li>
-        <li><span class="task-num n">2</span><p><b>青くかこまれた「いまここ」</b>の指示を、上から順にやる。ボタンは「やること」の中にあります。</p></li>
-        <li><span class="task-num n">3</span><p>全部に ✓ がついたら、下の<b>「次へ」</b>を押す。</p></li>
-      </ol>
-      <div class="mock" aria-hidden="true">
-        <div class="m-viz">図<br>（分子が動く）</div>
-        <div class="m-todo">やること<br>① ② ③</div>
-        <div class="m-bar">← 前へ　　　　　　次へ →</div>
-      </div>
-      <div class="start-row">
-        <button type="button" class="btn primary" data-go="1">STEP 1 からはじめる →</button>
-      </div>
-    </div>
-
-    <div style="display:flex;flex-direction:column;gap:10px">
-      <p class="bigq">このアプリで見る4つの現象</p>
-      <div class="phen">
-        <button type="button" data-go="1"><span class="pk">STEP 1</span><span class="pn">蒸気圧降下</span><span class="pd">水蒸気になる水分子が少なくなる</span></button>
-        <button type="button" data-go="2"><span class="pk">STEP 2</span><span class="pn">沸点上昇</span><span class="pd">沸とうする温度が高くなる</span></button>
-        <button type="button" data-go="3"><span class="pk">STEP 3</span><span class="pn">凝固点降下</span><span class="pd">こおる温度が低くなる</span></button>
-        <button type="button" data-go="4"><span class="pk">STEP 4</span><span class="pn">浸透圧</span><span class="pd">半透膜を通って水が移動する</span></button>
-      </div>
-      <p class="note">※ 画面の分子は、見やすくするため数を少なくし、溶質（グルコース）の粒子は実際の割合より多くかいています。</p>
-    </div>
-  </div>
-</section>
-
-<!-- ================= STEP 1 蒸気圧降下 ================= -->
-<section class="step" data-step="1" hidden>
-  <div class="head">
-    <div class="eyebrow">STEP <span class="n">1</span>　蒸気圧降下</div>
-    <h2>グルコースをとかすと、水蒸気の量は変わる？</h2>
-    <p class="lead">ふたをした2つの容器 A・B に、同じ温度の水が入っています。容器の上の空間の水分子（水蒸気）の数に注目しましょう。</p>
-  </div>
-
-  <div class="bench">
-    <div class="viz">
-      <div class="pair">
-        <div class="fig">
-          <div class="fig-label"><span class="tag-a">A</span>純水</div>
-          <div class="cv-wrap">
-            <canvas id="cv1a" width="300" height="300"></canvas>
-            <span class="ov box" style="right:6px;top:6px">水蒸気 <span class="n" id="oA">0</span> 個</span>
-            <span class="ov" style="left:8px;top:6px">気体</span>
-            <span class="ov" style="left:8px;top:calc(50% + 6px)">液体</span>
-          </div>
-        </div>
-        <div class="fig">
-          <div class="fig-label"><span class="tag-b">B</span><span id="s1bLabel">純水</span></div>
-          <div class="cv-wrap">
-            <canvas id="cv1b" width="300" height="300"></canvas>
-            <span class="ov box" style="right:6px;top:6px">水蒸気 <span class="n" id="oB">0</span> 個</span>
-            <span class="ov box" id="s1conc2" style="right:6px;bottom:6px" hidden></span>
-            <span class="ov" style="left:8px;top:6px">気体</span>
-            <span class="ov" style="left:8px;top:calc(50% + 6px)">液体</span>
-          </div>
-        </div>
-      </div>
-      <div class="viz-tools">
-        <div class="legend"><span><i class="lg-w"></i>水分子</span><span><i class="lg-s"></i>グルコース</span></div>
-      </div>
-    </div>
-
-    <div class="out">
-      <div class="now"><span class="ic">いま</span><p id="now1"></p></div>
-      <div class="chart-card">
-        <div class="chart-head">
-          <span>水蒸気の分子の数（直近 <span class="n">30</span> 秒）</span>
-          <span class="legend"><span><i class="ln-a"></i>A</span><span><i class="ln-b"></i>B</span></span>
-        </div>
-        <div class="chart-wrap"><canvas id="ch1" width="600" height="170"></canvas></div>
-      </div>
-      <div class="meters">
-        <div class="meter-card">
-          <div class="meter-title"><span class="tag-a">A</span>水蒸気 <span class="big-num" id="gA">0</span><span class="unit-j">個</span></div>
-          <div class="bar-row"><span class="lab">蒸発</span><span class="bar"><i class="c-evap" id="eA"></i></span><span class="val" id="eAv">0</span></div>
-          <div class="bar-row"><span class="lab">凝縮</span><span class="bar"><i class="c-cond" id="cA"></i></span><span class="val" id="cAv">0</span></div>
-        </div>
-        <div class="meter-card">
-          <div class="meter-title"><span class="tag-b">B</span>水蒸気 <span class="big-num" id="gB">0</span><span class="unit-j">個</span></div>
-          <div class="bar-row"><span class="lab">蒸発</span><span class="bar"><i class="c-evap" id="eB"></i></span><span class="val" id="eBv">0</span></div>
-          <div class="bar-row"><span class="lab">凝縮</span><span class="bar"><i class="c-cond" id="cB"></i></span><span class="val" id="cBv">0</span></div>
-        </div>
-      </div>
-      <p class="note">蒸発・凝縮の数字は、<span class="n">1</span> 秒あたりに蒸発・凝縮した分子の数（数秒間の平均）です。</p>
-    </div>
-
-    <aside class="todo" aria-label="やること">
-      <div class="todo-head"><h3>やること</h3><span class="prog"></span></div>
-      <ol class="tasks">
-        <li class="task" data-task="pred">
-          <div class="task-head"><span class="task-num n">1</span><p class="task-text"><span class="here">いまここ</span>予想しよう：B にグルコースをとかすと、B の水蒸気の分子の数はどうなる？</p></div>
-          <div class="task-body">
-            <div class="choices inline" data-pred="1"><button type="button" data-v="up">ふえる</button><button type="button" data-v="same">変わらない</button><button type="button" data-v="down">へる</button></div>
-          </div>
-        </li>
-        <li class="task" data-task="add">
-          <div class="task-head"><span class="task-num n">2</span><p class="task-text"><span class="here">いまここ</span>B にグルコースを入れよう。</p></div>
-          <div class="task-body"><div class="row"><button type="button" class="btn primary" id="s1add">B にグルコースを入れる</button></div></div>
-        </li>
-        <li class="task" data-task="wait">
-          <div class="task-head"><span class="task-num n">3</span><p class="task-text"><span class="here">いまここ</span>B の水蒸気の数（図の右上・グラフ）を見ながら待とう。どうなっていく？</p></div>
-          <div class="task-body"><div class="progress"><i id="s1wait"></i></div><p class="fb info" id="s1waitTxt">あと 12 秒</p></div>
-        </li>
-        <li class="task" data-task="why">
-          <div class="task-head"><span class="task-num n">4</span><p class="task-text"><span class="here">いまここ</span>B の水蒸気が少なくなったのはなぜ？（下の「蒸発」のバーもくらべよう）</p></div>
-          <div class="task-body">
-            <div class="choices" data-check="a" data-hint="A と B は同じ温度です。B の液面のようすと「蒸発」のバーを見てみよう。">
-              <button type="button" data-v="b">グルコースが水蒸気を吸いこんだから</button>
-              <button type="button" data-v="a">液面の一部をグルコースがしめて、蒸発する水分子が減ったから</button>
-              <button type="button" data-v="c">B の温度が A より低くなったから</button>
-            </div>
-            <p class="fb"></p>
-          </div>
-        </li>
-        <li class="task" data-task="conc">
-          <div class="task-head"><span class="task-num n">5</span><p class="task-text"><span class="here">いまここ</span>B のグルコースを多くするとどうなる？ 濃さを「<span class="n">2.0</span>」にして、<span class="n">10</span> 秒待とう。</p></div>
-          <div class="task-body">
-            <div class="row"><span class="seg-label">B の濃さ（mol/kg）</span><div class="seg" id="s1conc"><button type="button" data-m="0.5" class="n">0.5</button><button type="button" data-m="1" class="n" aria-pressed="true">1.0</button><button type="button" data-m="2" class="n">2.0</button></div></div>
-            <div class="progress"><i id="s1wait2"></i></div>
-          </div>
-        </li>
-      </ol>
-    </aside>
-  </div>
-
-  <div class="sum" hidden>
-    <h3>✓ まとめ：蒸気圧降下</h3>
-    <p class="pred" data-pred-result="1"></p>
-    <ul class="flow">
-      <li>溶質（グルコース）の粒子が、液面の一部をしめる</li>
-      <li>液面の水分子が減るので、<b>蒸発する水分子の数が減る</b></li>
-      <li>水蒸気が少ないところで、蒸発と凝縮の速さがつり合う（気液平衡）</li>
-      <li>水溶液の蒸気圧は、純水より低くなる ＝ 蒸気圧降下</li>
-    </ul>
-    <p>濃いほど（溶質の粒子が多いほど）、蒸気圧は大きく下がります。</p>
-    <div class="adv">
-      <p><span class="badge">発展</span><b>ラウールの法則</b>　<span class="eq"><i class="v">P</i><span class="op">=</span><i class="v">x</i><sub>水</sub><i class="v">P</i><sub class="n">0</sub></span>（<i class="v">P</i><sub class="n">0</sub>：純水の蒸気圧、<i class="v">x</i><sub>水</sub>：水分子の割合）</p>
-      <p>このモデルでも、B の水蒸気の数 ÷ A の水蒸気の数 ＝ <b class="n" id="s1ratio">—</b>、液体の水分子の割合 ＝ <b class="n" id="s1x">—</b> で、ほぼ同じになります。</p>
-    </div>
-  </div>
-</section>
-
-<!-- ================= STEP 2 沸点上昇 ================= -->
-<section class="step" data-step="2" hidden>
-  <div class="head">
-    <div class="eyebrow">STEP <span class="n">2</span>　沸点上昇</div>
-    <h2>水溶液は、何 <span class="n">°C</span> で沸とうする？</h2>
-    <p class="lead">純水 A とグルコース水溶液 B を、同じように加熱します。液体の蒸気圧が大気圧と等しくなると、液体の内部からも蒸発が起こります（沸とう）。</p>
-  </div>
-
-  <div class="bench">
-    <div class="viz">
-      <div class="cv-wrap">
-        <canvas id="cv2" width="600" height="300"></canvas>
-        <span class="ov strong" style="left:4%;top:8px"><span class="tag-a" style="display:inline-grid;margin-right:4px">A</span>純水</span>
-        <span class="ov strong" style="left:54%;top:8px"><span class="tag-b" style="display:inline-grid;margin-right:4px">B</span>水溶液 <span class="n" id="s2mLab">1.0</span> mol/kg</span>
-        <span class="ov" style="left:32%;top:15%">蒸気圧</span>
-        <span class="ov" style="left:80.5%;top:15%">蒸気圧</span>
-        <span class="ov" id="s2atmA" style="left:38.6%;top:0;color:var(--ng)">大気圧</span>
-        <span class="ov" id="s2atmB" style="left:87%;top:0;color:var(--ng)">大気圧</span>
-        <span class="ov box" style="left:5%;top:16%"><span class="n" id="oTA">99.00</span> <span class="n" style="font-size:12px;font-weight:400">°C</span></span>
-        <span class="ov box" style="left:53.3%;top:16%"><span class="n" id="oTB">99.00</span> <span class="n" style="font-size:12px;font-weight:400">°C</span></span>
-        <span class="ov strong" id="s2boilA" style="left:7%;top:29%" hidden>沸とう中</span>
-        <span class="ov strong" id="s2boilB" style="left:55.3%;top:29%" hidden>沸とう中</span>
-      </div>
-      <div class="viz-tools">
-        <div class="legend"><span>蒸気圧のバーが大気圧の線に届くと沸とう</span></div>
-        <button type="button" class="small-btn" id="s2reset">↺ はじめから</button>
-      </div>
-    </div>
-
-    <div class="out">
-      <div class="now"><span class="ic">いま</span><p id="now2"></p></div>
-      <div class="meters">
-        <div class="meter-card">
-          <div class="meter-title"><span class="tag-a">A</span>温度<span class="state" id="s2stA">加熱前</span></div>
-          <div><span class="big-num" id="tA">99.00</span> <span class="n">°C</span></div>
-          <div class="note">蒸気圧 <span class="n" id="pA">—</span></div>
-        </div>
-        <div class="meter-card">
-          <div class="meter-title"><span class="tag-b">B</span>温度<span class="state" id="s2stB">加熱前</span></div>
-          <div><span class="big-num" id="tB">99.00</span> <span class="n">°C</span></div>
-          <div class="note">蒸気圧 <span class="n" id="pB">—</span></div>
-        </div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-head">
-          <span>蒸気圧曲線（温度と蒸気圧の関係）</span>
-          <span class="legend"><span><i class="ln-a"></i>A 純水</span><span><i class="ln-b"></i>B 水溶液</span></span>
-        </div>
-        <div class="chart-wrap">
-          <canvas id="ch2" width="600" height="260"></canvas>
-          <span class="ov" style="left:8.5%;top:2px">蒸気圧（kPa）</span>
-          <span class="ov" style="right:4px;bottom:2px">温度（°C）</span>
-          <span class="ov" style="left:10%;top:calc(37.8% - 19px);color:var(--ng)">大気圧 <span class="n">101.3</span> kPa</span>
-        </div>
-      </div>
-    </div>
-
-    <aside class="todo" aria-label="やること">
-      <div class="todo-head"><h3>やること</h3><span class="prog"></span></div>
-      <ol class="tasks">
-        <li class="task" data-task="pred">
-          <div class="task-head"><span class="task-num n">1</span><p class="task-text"><span class="here">いまここ</span>予想しよう：B（グルコース水溶液）が沸とうし始める温度は？</p></div>
-          <div class="task-body">
-            <div class="choices inline" data-pred="2"><button type="button" data-v="low"><span class="n">100 °C</span> より低い</button><button type="button" data-v="same"><span class="n">100 °C</span></button><button type="button" data-v="high"><span class="n">100 °C</span> より高い</button></div>
-          </div>
-        </li>
-        <li class="task" data-task="heat">
-          <div class="task-head"><span class="task-num n">2</span><p class="task-text"><span class="here">いまここ</span>A と B を加熱しよう。</p></div>
-          <div class="task-body"><div class="row"><button type="button" class="btn primary" id="s2heat">▶ 加熱する</button></div></div>
-        </li>
-        <li class="task" data-task="boilA">
-          <div class="task-head"><span class="task-num n">3</span><p class="task-text"><span class="here">いまここ</span>A（純水）が沸とうし始めるまで待とう。そのときの温度は？</p></div>
-          <div class="task-body"><div class="reading" id="rdA"><span class="note">A の沸点：</span><span class="big-num">—</span></div></div>
-        </li>
-        <li class="task" data-task="boilB">
-          <div class="task-head"><span class="task-num n">4</span><p class="task-text"><span class="here">いまここ</span>B（水溶液）が沸とうし始めるまで待とう。そのときの温度は？</p></div>
-          <div class="task-body"><div class="reading" id="rdB"><span class="note">B の沸点：</span><span class="big-num">—</span></div><p class="fb info" id="rdBd"></p></div>
-        </li>
-        <li class="task" data-task="conc">
-          <div class="task-head"><span class="task-num n">5</span><p class="task-text"><span class="here">いまここ</span>B の濃さを <span class="n">2</span> 倍（<span class="n">2.0</span> mol/kg）にして、もう一度加熱しよう。沸点はどれだけ上がる？</p></div>
-          <div class="task-body">
-            <div class="row"><span class="seg-label">B の濃さ（mol/kg）</span><div class="seg" id="s2conc"><button type="button" data-m="0.5" class="n">0.5</button><button type="button" data-m="1" class="n" aria-pressed="true">1.0</button><button type="button" data-m="2" class="n">2.0</button></div></div>
-            <div class="row"><button type="button" class="btn" id="s2heat2">▶ 加熱する</button></div>
-            <p class="fb info" id="s2cfb"></p>
-          </div>
-        </li>
-      </ol>
-    </aside>
-  </div>
-
-  <div class="sum" hidden>
-    <h3>✓ まとめ：沸点上昇</h3>
-    <p class="pred" data-pred-result="2"></p>
-    <ul class="flow">
-      <li>水溶液は、同じ温度で純水より蒸気圧が低い（STEP <span class="n">1</span>）</li>
-      <li>蒸気圧が大気圧に届くには、純水より高い温度が必要</li>
-      <li>水溶液の沸点は、純水の沸点より高くなる ＝ 沸点上昇</li>
-    </ul>
-    <div class="formula">
-      <span class="main eq">Δ<i class="v">t</i><span class="op">=</span><i class="v">K</i><sub>b</sub><i class="v">m</i></span>
-      <span class="desc">Δ<i class="v">t</i>：沸点上昇度（K）　<i class="v">m</i>：質量モル濃度（mol/kg）<br><i class="v">K</i><sub>b</sub>：モル沸点上昇（水は <span class="n">0.52 K·kg/mol</span>）</span>
-      <span class="calc" id="s2calc"></span>
-    </div>
-    <p>沸点上昇度は質量モル濃度に比例します。濃さが <span class="n">2</span> 倍なら、上がる温度も <span class="n">2</span> 倍です。</p>
-    <div class="adv"><p><span class="badge">発展</span>実際に沸とうを続けると、水だけが蒸発して水溶液が少しずつ濃くなるので、温度もわずかずつ上がり続けます（このモデルでは濃さは一定としています）。</p></div>
-  </div>
-</section>
-
-<!-- ================= STEP 3 凝固点降下 ================= -->
-<section class="step" data-step="3" hidden>
-  <div class="head">
-    <div class="eyebrow">STEP <span class="n">3</span>　凝固点降下</div>
-    <h2>水溶液は、何 <span class="n">°C</span> でこおる？</h2>
-    <p class="lead">氷と液体が接しているところを拡大して見ます。液体の水分子が氷にくっつく（凝固）と、氷の水分子が離れる（融解）が、いつも同時に起きています。</p>
-  </div>
-
-  <div class="bench">
-    <div class="viz">
-      <div class="pair">
-        <div class="fig">
-          <div class="fig-label"><span class="tag-a">A</span>純水と氷</div>
-          <div class="cv-wrap">
-            <canvas id="cv3a" width="300" height="260"></canvas>
-            <span class="ov box" style="right:6px;top:6px"><span class="fz">凝固</span> <span class="n" id="oFA"></span>　<span class="mt">融解</span> <span class="n" id="oMA"></span></span>
-            <span class="ov box" style="right:6px;bottom:6px">氷 <span class="n" id="oIA"></span> %</span>
-            <span class="ov" style="left:8px;top:6px">液体</span>
-            <span class="ov" style="left:8px;bottom:6px">氷（固体）</span>
-          </div>
-        </div>
-        <div class="fig">
-          <div class="fig-label"><span class="tag-b">B</span>水溶液と氷</div>
-          <div class="cv-wrap">
-            <canvas id="cv3b" width="300" height="260"></canvas>
-            <span class="ov box" style="right:6px;top:6px"><span class="fz">凝固</span> <span class="n" id="oFB"></span>　<span class="mt">融解</span> <span class="n" id="oMB"></span></span>
-            <span class="ov box" style="right:6px;bottom:6px">氷 <span class="n" id="oIB"></span> %</span>
-            <span class="ov" style="left:8px;top:6px">液体</span>
-            <span class="ov" style="left:8px;bottom:6px">氷（固体）</span>
-          </div>
-        </div>
-      </div>
-      <div class="viz-tools">
-        <div class="legend"><span><i class="lg-w"></i>水分子（液体）</span><span><i class="lg-i"></i>水分子（氷）</span><span><i class="lg-s"></i>グルコース</span></div>
-        <span class="note">温度 <b class="n" id="s3tShow">+0.50 °C</b>（A・B 同じ）　B の濃さ <b class="n" id="s3mLab">1.0</b> mol/kg</span>
-      </div>
-    </div>
-
-    <div class="out">
-      <div class="now"><span class="ic">いま</span><p id="now3"></p></div>
-      <div class="meters">
-        <div class="meter-card">
-          <div class="meter-title"><span class="tag-a">A</span>純水<span class="state" id="s3stA"></span></div>
-          <div class="bar-row"><span class="lab">凝固</span><span class="bar"><i class="c-freeze" id="fA"></i></span><span class="val" id="fAv"></span></div>
-          <div class="bar-row"><span class="lab">融解</span><span class="bar"><i class="c-melt" id="mA"></i></span><span class="val" id="mAv"></span></div>
-          <div class="bar-row"><span class="lab">氷の量</span><span class="bar"><i class="c-ice" id="iA"></i></span><span class="val" id="iAv"></span></div>
-        </div>
-        <div class="meter-card">
-          <div class="meter-title"><span class="tag-b">B</span>水溶液<span class="state" id="s3stB"></span></div>
-          <div class="bar-row"><span class="lab">凝固</span><span class="bar"><i class="c-freeze" id="fB"></i></span><span class="val" id="fBv"></span></div>
-          <div class="bar-row"><span class="lab">融解</span><span class="bar"><i class="c-melt" id="mB"></i></span><span class="val" id="mBv"></span></div>
-          <div class="bar-row"><span class="lab">氷の量</span><span class="bar"><i class="c-ice" id="iB"></i></span><span class="val" id="iBv"></span></div>
-        </div>
-      </div>
-      <p class="note">凝固・融解の数字は速さのくらべ（純水の <span class="n">0 °C</span> を <span class="n">100</span> とする）。氷の量は % です。</p>
-    </div>
-
-    <aside class="todo" aria-label="やること">
-      <div class="todo-head"><h3>やること</h3><span class="prog"></span></div>
-      <ol class="tasks">
-        <li class="task" data-task="pred">
-          <div class="task-head"><span class="task-num n">1</span><p class="task-text"><span class="here">いまここ</span>予想しよう：B（グルコース水溶液）がこおる温度（凝固点）は？</p></div>
-          <div class="task-body">
-            <div class="choices inline" data-pred="3"><button type="button" data-v="high"><span class="n">0 °C</span> より高い</button><button type="button" data-v="same"><span class="n">0 °C</span></button><button type="button" data-v="low"><span class="n">0 °C</span> より低い</button></div>
-          </div>
-        </li>
-        <li class="task" data-task="zero">
-          <div class="task-head"><span class="task-num n">2</span><p class="task-text"><span class="here">いまここ</span>温度を <span class="n">0 °C</span>（純水の凝固点）にしよう。A と B の「氷の量」はどうなる？</p></div>
-          <div class="task-body"><div class="row"><button type="button" class="btn primary" id="s3zero">温度を 0 °C にする</button></div><p class="fb info" id="s3zfb"></p></div>
-        </li>
-        <li class="task" data-task="why">
-          <div class="task-head"><span class="task-num n">3</span><p class="task-text"><span class="here">いまここ</span><span class="n">0 °C</span> で B の氷がとけていくのはなぜ？（B の「凝固」と「融解」のバーをくらべよう）</p></div>
-          <div class="task-body">
-            <div class="choices" data-check="a" data-hint="A と B は同じ温度です。B の「凝固」のバーが A より短いことに注目しよう。">
-              <button type="button" data-v="b">グルコースがとけるときに熱を出すから</button>
-              <button type="button" data-v="c">B のほうが A より温度が高いから</button>
-              <button type="button" data-v="a">グルコースがじゃまをして、氷にくっつく水分子（凝固）が減るから</button>
-            </div>
-            <p class="fb"></p>
-          </div>
-        </li>
-        <li class="task" data-task="find">
-          <div class="task-head"><span class="task-num n">4</span><p class="task-text"><span class="here">いまここ</span>温度を下げて、<b>B の氷の量が変わらなくなる温度</b>をさがそう（凝固と融解のバーが同じ長さになる温度）。</p></div>
-          <div class="task-body">
-            <div class="slider">
-              <div class="slider-top"><span class="seg-label">温度</span><span><span class="big-num" id="s3tv">+0.50</span> <span class="n">°C</span></span></div>
-              <div class="slider-row">
-                <button type="button" class="pm" data-dt="-0.05" aria-label="0.05 °C 下げる">−</button>
-                <input type="range" id="s3t" min="-4.5" max="1" step="0.05" value="0.5" aria-label="温度">
-                <button type="button" class="pm" data-dt="0.05" aria-label="0.05 °C 上げる">+</button>
-              </div>
-              <div class="scale"><span>−4.5</span><span>0</span><span>+1</span></div>
-            </div>
-            <p class="fb info" id="s3ffb">+・− のボタンで <span class="n">0.05 °C</span> ずつ調整できます。</p>
-          </div>
-        </li>
-        <li class="task" data-task="conc">
-          <div class="task-head"><span class="task-num n">5</span><p class="task-text"><span class="here">いまここ</span>B の濃さを <span class="n">2</span> 倍（<span class="n">2.0</span> mol/kg）にすると、氷の量が変わらない温度は？ もう一度さがそう。</p></div>
-          <div class="task-body">
-            <div class="row"><span class="seg-label">B の濃さ（mol/kg）</span><div class="seg" id="s3conc"><button type="button" data-m="0.5" class="n">0.5</button><button type="button" data-m="1" class="n" aria-pressed="true">1.0</button><button type="button" data-m="2" class="n">2.0</button></div></div>
-            <p class="fb info" id="s3cfb">温度は 4 のスライダーで変えます。</p>
-          </div>
-        </li>
-      </ol>
-    </aside>
-  </div>
-
-  <div class="sum" hidden>
-    <h3>✓ まとめ：凝固点降下</h3>
-    <p class="pred" data-pred-result="3"></p>
-    <ul class="flow">
-      <li>溶質の粒子がじゃまをして、氷にくっつく水分子が減る（凝固が遅くなる）</li>
-      <li><span class="n">0 °C</span> では 融解 ＞ 凝固 となり、氷がとけていく</li>
-      <li>温度を下げると融解が遅くなり、ある温度で 凝固 ＝ 融解 になる</li>
-      <li>水溶液の凝固点は、純水の凝固点より低くなる ＝ 凝固点降下</li>
-    </ul>
-    <div class="formula">
-      <span class="main eq">Δ<i class="v">t</i><span class="op">=</span><i class="v">K</i><sub>f</sub><i class="v">m</i></span>
-      <span class="desc">Δ<i class="v">t</i>：凝固点降下度（K）　<i class="v">m</i>：質量モル濃度（mol/kg）<br><i class="v">K</i><sub>f</sub>：モル凝固点降下（水は <span class="n">1.85 K·kg/mol</span>）</span>
-      <span class="calc" id="s3calc"></span>
-    </div>
-    <div class="adv">
-      <p><span class="badge">発展</span><b>冷却曲線</b>：実験では液体を冷やしながら温度をはかります。凝固点より少し下がってからこおり始める<b>過冷却</b>が起こります。また水溶液では、氷（水だけ）ができるにつれて残りの水溶液が濃くなるので、こおっている間も温度が少しずつ下がり続けます。</p>
-      <p>身近な例：冬の道路にまく融雪剤（塩化カルシウム）は、この凝固点降下を利用しています。</p>
-    </div>
-  </div>
-</section>
-
-<!-- ================= STEP 4 浸透圧 ================= -->
-<section class="step" data-step="4" hidden>
-  <div class="head">
-    <div class="eyebrow">STEP <span class="n">4</span>　浸透圧</div>
-    <h2>半透膜をはさむと、水はどちらへ動く？</h2>
-    <p class="lead">U字管の真ん中に<b>半透膜</b>（水分子は通すが、グルコースは通さない膜）があります。左に純水 A、右にグルコース水溶液 B を、同じ高さまで入れました。</p>
-  </div>
-
-  <div class="bench">
-    <div class="viz">
-      <div class="pair" style="grid-template-columns:1.25fr 1fr">
-        <div class="fig">
-          <div class="fig-label">U字管（全体）</div>
-          <div class="cv-wrap">
-            <canvas id="cv4" width="320" height="320"></canvas>
-            <span class="ov strong" style="left:12%;top:4px"><span class="tag-a" style="display:inline-grid;margin-right:4px">A</span>純水</span>
-            <span class="ov strong" style="left:56%;top:4px"><span class="tag-b" style="display:inline-grid;margin-right:4px">B</span>水溶液</span>
-            <span class="ov" id="s4dhLab" style="right:2px;top:40%" hidden>液面差</span>
-            <span class="ov strong" id="s4push" style="left:62%;top:0" hidden>押す ↓</span>
-            <span class="ov" style="left:38%;bottom:2px">半透膜</span>
-          </div>
-        </div>
-        <div class="fig">
-          <div class="fig-label">半透膜の拡大図</div>
-          <div class="cv-wrap">
-            <canvas id="cv4z" width="240" height="320"></canvas>
-            <span class="ov box" style="left:4px;right:4px;bottom:4px;text-align:center">A→B <span class="n" id="oF4"></span>　B→A <span class="n" id="oR4"></span></span>
-            <span class="ov" style="left:6px;top:4px">A 側</span>
-            <span class="ov" style="right:6px;top:4px">B 側</span>
-          </div>
-        </div>
-      </div>
-      <div class="viz-tools">
-        <div class="legend"><span><i class="lg-w"></i>水分子</span><span><i class="lg-s"></i>グルコース</span><span><i class="lg-m"></i>半透膜</span></div>
-        <button type="button" class="small-btn" id="s4reset">↺ はじめから</button>
-      </div>
-    </div>
-
-    <div class="out">
-      <div class="now"><span class="ic">いま</span><p id="now4"></p></div>
-      <div class="meter-card">
-        <div class="meter-title">半透膜を通る水分子の数（<span class="n">1</span> 秒あたりのくらべ）<span class="state" id="s4st"></span></div>
-        <div class="bar-row" style="grid-template-columns:6.4em 1fr 2.6em"><span class="lab">A → B</span><span class="bar"><i class="c-fwd" id="fw"></i></span><span class="val" id="fwv"></span></div>
-        <div class="bar-row" style="grid-template-columns:6.4em 1fr 2.6em"><span class="lab">B → A</span><span class="bar"><i class="c-rev" id="rv1"></i><i class="c-push" id="rv2"></i></span><span class="val" id="rvv"></span></div>
-        <div class="legend"><span><i class="ln-a" style="background:var(--accent)"></i>B 側の水分子が膜に当たる分</span><span><i class="ln-a" style="background:var(--warm)"></i>液面差・押す力で押しもどす分</span></div>
-      </div>
-    </div>
-
-    <aside class="todo" aria-label="やること">
-      <div class="todo-head"><h3>やること</h3><span class="prog"></span></div>
-      <ol class="tasks">
-        <li class="task" data-task="pred">
-          <div class="task-head"><span class="task-num n">1</span><p class="task-text"><span class="here">いまここ</span>予想しよう：半透膜を通って、水分子はどちら向きに多く移動する？</p></div>
-          <div class="task-body">
-            <div class="choices inline" data-pred="4"><button type="button" data-v="ab">A → B</button><button type="button" data-v="ba">B → A</button><button type="button" data-v="same">同じ</button></div>
-          </div>
-        </li>
-        <li class="task" data-task="start">
-          <div class="task-head"><span class="task-num n">2</span><p class="task-text"><span class="here">いまここ</span>スタートを押して、液面が止まるまで見よう。</p></div>
-          <div class="task-body"><div class="row"><button type="button" class="btn primary" id="s4start">▶ スタート</button></div><div class="progress"><i id="s4prog"></i></div></div>
-        </li>
-        <li class="task" data-task="why">
-          <div class="task-head"><span class="task-num n">3</span><p class="task-text"><span class="here">いまここ</span>B の液面が高くなったところで止まったのはなぜ？</p></div>
-          <div class="task-body">
-            <div class="choices" data-check="a" data-hint="B → A のバーのオレンジの部分に注目しよう。液面が高い B 側の液体の重さが、膜の水分子を押しています。">
-              <button type="button" data-v="b">グルコースが半透膜の穴をふさいだから</button>
-              <button type="button" data-v="a">高くなった B の液体の重さ（圧力）が、水分子を A へ押しもどすから</button>
-              <button type="button" data-v="c">A の水がなくなったから</button>
-            </div>
-            <p class="fb"></p>
-          </div>
-        </li>
-        <li class="task" data-task="push">
-          <div class="task-head"><span class="task-num n">4</span><p class="task-text"><span class="here">いまここ</span>B の液面を上から押して、<b>A と B の液面の高さをそろえよう</b>。どれだけの圧力が必要？</p></div>
-          <div class="task-body">
-            <div class="slider">
-              <div class="slider-top"><span class="seg-label">B を押す圧力</span><span><span class="big-num" id="s4pv">0.0</span> <span class="n">× 10<sup>5</sup> Pa</span></span></div>
-              <div class="slider-row">
-                <button type="button" class="pm" data-dp="-0.5" aria-label="圧力を下げる">−</button>
-                <input type="range" id="s4p" min="0" max="60" step="0.5" value="0" aria-label="B を押す圧力">
-                <button type="button" class="pm" data-dp="0.5" aria-label="圧力を上げる">+</button>
-              </div>
-              <div class="scale"><span>0</span><span>30</span><span>60</span></div>
-            </div>
-            <p class="fb info" id="s4pfb">押すと液面が動きます。止まるまで待ってから調整しよう。</p>
-          </div>
-        </li>
-        <li class="task" data-task="conc">
-          <div class="task-head"><span class="task-num n">5</span><p class="task-text"><span class="here">いまここ</span>B の濃さを <span class="n">2</span> 倍（<span class="n">2.0</span> mol/L）にすると、そろえるのに必要な圧力は？</p></div>
-          <div class="task-body">
-            <div class="row"><span class="seg-label">B の濃さ（mol/L）</span><div class="seg" id="s4conc"><button type="button" data-m="0.5" class="n">0.5</button><button type="button" data-m="1" class="n" aria-pressed="true">1.0</button><button type="button" data-m="2" class="n">2.0</button></div></div>
-            <p class="fb info" id="s4cfb">圧力は 4 のスライダーで変えます。</p>
-          </div>
-        </li>
-      </ol>
-    </aside>
-  </div>
-
-  <div class="sum" hidden>
-    <h3>✓ まとめ：浸透圧</h3>
-    <p class="pred" data-pred-result="4"></p>
-    <ul class="flow">
-      <li>B 側は水分子の割合が小さいので、膜を通って A へ移る水分子が少ない</li>
-      <li>水は A → B へ多く移動し、B の液面が上がる（浸透）</li>
-      <li>B の液面が高くなると、その圧力で水が押しもどされ、ある液面差で止まる</li>
-      <li>液面の高さをそろえるのに必要な圧力 ＝ 浸透圧</li>
-    </ul>
-    <div class="formula">
-      <span class="main eq"><i class="v">Π</i><span class="op">=</span><i class="v">cRT</i></span>
-      <span class="desc"><i class="v">Π</i>：浸透圧（Pa）　<i class="v">c</i>：モル濃度（mol/L）　<i class="v">T</i>：絶対温度（K）<br><i class="v">R</i>：気体定数 <span class="n">8.31 × 10<sup>3</sup> Pa·L/(K·mol)</span>（ファントホッフの法則）</span>
-      <span class="calc" id="s4calc"></span>
-    </div>
-    <p>浸透圧はモル濃度に比例します。濃さが <span class="n">2</span> 倍なら、必要な圧力も <span class="n">2</span> 倍です。</p>
-    <div class="adv">
-      <p><span class="badge">発展</span>この実験の温度は <span class="n">27 °C</span>（<span class="n">300 K</span>）としました。実際の <span class="n">1.0</span> mol/L の浸透圧は約 <span class="n">25 × 10<sup>5</sup> Pa</span> で、水の柱なら高さ約 <span class="n">250 m</span> にもなります（画面の液面差は小さくかいています）。</p>
-      <p>浸透圧より大きい圧力で押すと、水は B → A へ移動します（逆浸透）。海水から真水をつくる装置に使われています。</p>
-    </div>
-  </div>
-</section>
-
-<!-- ================= STEP 5 まとめ ================= -->
-<section class="step" data-step="5" hidden>
-  <div class="head">
-    <div class="eyebrow">STEP <span class="n">5</span>　まとめと確認</div>
-    <h2>4つの現象に共通することは？</h2>
-    <p class="lead">どの現象も、溶質の粒子が溶媒（水）の分子の「動き」をじゃましたり、割合を減らしたりすることで起こります。</p>
-  </div>
-
-  <div class="table-wrap">
-    <table class="sumtab">
-      <thead><tr><th>現象</th><th>分子で見ると</th><th>結果</th><th>式</th></tr></thead>
-      <tbody>
-        <tr><td>蒸気圧降下</td><td>液面の水分子が減り、蒸発が減る</td><td>蒸気圧が下がる</td><td class="eq"><i class="v">P</i><span class="op">=</span><i class="v">x</i><sub>水</sub><i class="v">P</i><sub class="n">0</sub>（発展）</td></tr>
-        <tr><td>沸点上昇</td><td>蒸気圧が低いので、大気圧に届く温度が上がる</td><td>沸点が上がる</td><td class="eq">Δ<i class="v">t</i><span class="op">=</span><i class="v">K</i><sub>b</sub><i class="v">m</i></td></tr>
-        <tr><td>凝固点降下</td><td>氷にくっつく水分子が減り、凝固が減る</td><td>凝固点が下がる</td><td class="eq">Δ<i class="v">t</i><span class="op">=</span><i class="v">K</i><sub>f</sub><i class="v">m</i></td></tr>
-        <tr><td>浸透圧</td><td>B → A へ膜を通る水分子が減る</td><td>水が A → B へ移動する</td><td class="eq"><i class="v">Π</i><span class="op">=</span><i class="v">cRT</i></td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="card" style="display:flex;flex-direction:column;gap:6px">
-    <p><b>どれも、溶質の「種類」ではなく「粒子の数（物質量）」で決まります。</b>グルコースでもスクロースでも、同じ質量モル濃度なら同じだけ沸点が上がります。</p>
-    <p>塩化ナトリウム <span class="chem">NaCl</span> は水の中で <span class="chem">Na<sup>+</sup></span> と <span class="chem">Cl<sup>−</sup></span> に分かれる（電離する）ので、粒子の数が約 <span class="n">2</span> 倍になり、効果も約 <span class="n">2</span> 倍になります。</p>
-  </div>
-
-  <h3 style="font-family:var(--f-disp);font-size:22px">確認問題</h3>
-  <div class="quiz" id="quiz"></div>
-  <div class="score card" id="score" hidden></div>
-</section>
-
-<div class="colophon">
-  <p>分子モデルは平面（<span class="n">2</span> 次元）の模式図です。見やすくするため、溶質の粒子を実際の割合より多くかき、液面差は小さくかいています。</p>
-  <p>沸点・凝固点・浸透圧の数値は、<i class="v">K</i><sub>b</sub> <span class="op">=</span> <span class="n">0.52 K·kg/mol</span>、<i class="v">K</i><sub>f</sub> <span class="op">=</span> <span class="n">1.85 K·kg/mol</span>、<i class="v">R</i> <span class="op">=</span> <span class="n">8.31 × 10<sup>3</sup> Pa·L/(K·mol)</span> で計算した値です。</p>
-</div>
-</main>
+<main id="main"></main>
 
 <footer class="site">
   希薄溶液の性質 — 高等学校化学「希薄溶液の性質」学習アプリ
-  <span class="version">ver.2.0.0</span>
+  <span class="version">ver.3.0.0</span><br>
+  <a href="classic.html">現象を1つずつ、じっくり確かめる版（ver.2）はこちら</a>
 </footer>
 
-<nav class="bottom" aria-label="ステップの移動">
+<nav class="bottom" aria-label="前後の場面">
   <div class="bottom-in">
     <button type="button" class="btn" id="prevBtn">← 前へ</button>
     <div class="mid" id="midTxt"></div>
@@ -993,12 +486,12 @@ footer.site .version {
     <h3 style="font-family:var(--f-disp);font-size:20px">使い方</h3>
     <div class="howto">
       <ol>
-        <li><span class="task-num n">1</span><p>図の横（スマホでは図の下）の<b>「やること」</b>を見る。</p></li>
-        <li><span class="task-num n">2</span><p><b>青くかこまれた「いまここ」</b>を上から順にやる。ボタンやスライダーは「やること」の中にあります。</p></li>
+        <li><span class="task-num n">1</span><p>図は、水溶液と「相手」の<b>境目</b>の拡大図です。下のバーで、水溶液から<b class="c-out">出る</b>水分子と<b class="c-in">入る</b>水分子の数をくらべます。</p></li>
+        <li><span class="task-num n">2</span><p><b>「やること」</b>の青い「いまここ」を、上から順に進めます。</p></li>
         <li><span class="task-num n">3</span><p>全部に ✓ がつくと「まとめ」が出ます。読んだら下の<b>「次へ」</b>へ。</p></li>
       </ol>
     </div>
-    <p class="note">上の番号（<span class="n">0</span>〜<span class="n">5</span>）を押すと、好きなステップに移れます。</p>
+    <p class="note">どの場面でも「出る・入る・つり合い」の同じ見方を使います。</p>
     <div class="row" style="justify-content:flex-end"><button type="button" class="btn primary" id="helpClose">閉じる</button></div>
   </div>
 </dialog>
@@ -1010,803 +503,613 @@ footer.site .version {
 /* ================= 共通の部品 ================= */
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
-const minus = (s) => s.replace(/-/g, "−");
-const fx = (v, d) => minus(v.toFixed(d));
-const signed = (v, d) => (v > 0.0005 ? "+" : "") + fx(Math.abs(v) < 0.0005 ? 0 : v, d);
+const fx = (v, d) => (Math.abs(v) < 0.5 * Math.pow(10, -d) ? 0 : v).toFixed(d).replace(/-/g, "−");
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const rnd = Math.random;
 
-/* 画面の色（CSS の変数から読む。ダークモードの切り替えにも追従） */
+/* 組版の印：{数値・単位} → Times、*記号* → 斜体、[化学式] → Arial、^上付き^、~下付き~ */
+function ts(s) {
+  return s
+    .replace(/\[([^\]]+)\]/g, (m, a) => `<span class="chem">${a.replace(/([A-Za-z)])(\d+)/g, "$1<sub>$2</sub>")}</span>`)
+    .replace(/\{([^}]+)\}/g, (m, a) => `<span class="n">${a.replace(/ /g, "&nbsp;")}</span>`)
+    .replace(/\*([^*]+)\*/g, '<span class="v">$1</span>')
+    .replace(/~([^~]+)~/g, "<sub>$1</sub>")
+    .replace(/\^([^^]+)\^/g, "<sup>$1</sup>");
+}
+
 const COL = {};
 function readColors() {
   const cs = getComputedStyle(document.documentElement);
-  for (const k of ["bg", "surface", "ink", "muted", "line", "accent", "water", "solute", "solute-soft", "ice", "ice-fill", "liq", "gas", "warm", "teal", "ok", "ng"]) COL[k] = cs.getPropertyValue("--" + k).trim();
+  for (const k of ["bg", "surface", "ink", "muted", "line", "accent", "water", "solute", "solute-soft", "ice", "ice-fill", "liq", "gas", "warm", "ng", "c-out", "c-in"]) COL[k] = cs.getPropertyValue("--" + k).trim();
 }
 readColors();
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change", readColors);
 
-/* キャンバス：論理座標 W×H で描き、表示の大きさと画素密度に合わせて拡大する */
-function makeCanvas(id) {
-  const el = document.getElementById(id);
+function makeCanvas(el) {
   const W = el.width, H = el.height;
-  const c = { el, W, H, ctx: el.getContext("2d"), k: 1 };
+  const c = { el, W, H, ctx: el.getContext("2d") };
   const fit = () => {
     const w = el.clientWidth || W, dpr = window.devicePixelRatio || 1;
-    c.k = w / W;
     el.width = Math.round(w * dpr); el.height = Math.round(w * H / W * dpr);
-    el.style.aspectRatio = W + " / " + H;
-    c.ctx.setTransform(c.k * dpr, 0, 0, c.k * dpr, 0, 0);
+    c.ctx.setTransform(w / W * dpr, 0, 0, w / W * dpr, 0, 0);
   };
   el.style.aspectRatio = W + " / " + H;
   new ResizeObserver(fit).observe(el);
-  c.begin = () => { c.ctx.clearRect(0, 0, W, H); };
   return c;
 }
-function circle(ctx, x, y, r, fill, stroke) {
+function circle(ctx, x, y, r, fill, stroke, lw = 1.2) {
   ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
   if (fill) { ctx.fillStyle = fill; ctx.fill(); }
-  if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1.2; ctx.stroke(); }
+  if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw; ctx.stroke(); }
 }
 function hexagon(ctx, x, y, r) {
   ctx.beginPath();
   for (let i = 0; i < 6; i++) { const a = Math.PI / 3 * i; ctx.lineTo(x + r * Math.cos(a), y + r * Math.sin(a)); }
   ctx.closePath(); ctx.fillStyle = COL.solute; ctx.fill();
 }
-function arrow(ctx, x1, y1, x2, y2, color, w = 2, head = 6) {
-  ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = w;
-  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
-  const a = Math.atan2(y2 - y1, x2 - x1);
-  ctx.beginPath(); ctx.moveTo(x2, y2);
-  ctx.lineTo(x2 - head * Math.cos(a - 0.45), y2 - head * Math.sin(a - 0.45));
-  ctx.lineTo(x2 - head * Math.cos(a + 0.45), y2 - head * Math.sin(a + 0.45));
-  ctx.closePath(); ctx.fill();
+function line(ctx, pts, color, w = 2, dash) {
+  ctx.beginPath(); ctx.setLineDash(dash || []);
+  pts.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])));
+  ctx.strokeStyle = color; ctx.lineWidth = w; ctx.stroke(); ctx.setLineDash([]);
 }
-const setBar = (id, frac) => { $("#" + id).style.width = clamp(frac, 0, 1) * 100 + "%"; };
-const setText = (id, s) => { const e = $("#" + id); if (e.textContent !== s) e.textContent = s; };
-const setHTML = (id, s) => { const e = $("#" + id); if (e._h !== s) { e.innerHTML = s; e._h = s; } };
-function setState(id, cls, txt) { const e = $("#" + id); e.className = "state " + cls; e.textContent = txt; }
-function segPick(id, fn) {
-  const seg = $("#" + id);
-  seg.addEventListener("click", (ev) => {
-    const b = ev.target.closest("button"); if (!b) return;
-    $$("button", seg).forEach((x) => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
-    fn(parseFloat(b.dataset.m));
-  });
-}
-function segSet(id, m) { $$("button", $("#" + id)).forEach((x) => x.setAttribute("aria-pressed", parseFloat(x.dataset.m) === m ? "true" : "false")); }
 
-/* ================= やること（上から順に進む課題） ================= */
-const STEP_COUNT = 6;
-const tasks = {};      // step -> { list:[id], done:Set }
-const preds = {};      // step -> 予想した値
-const stepDone = new Set([0]);
+/* ================= 4つの場面 ================= */
+const PI1 = osmoticPa(1) / 1e5;   // 24.9（×10^5 Pa）
+const VIEW = (hot, how) => `<div class="view"><span class="chip">溶質が入る</span><span class="ar">→</span><span class="chip">「出る」だけが減る</span><span class="ar">→</span><span class="chip ${hot ? "hot" : ""}">${how}</span></div>`;
 
-function initTasks(step) {
-  const sec = $(`section[data-step="${step}"]`);
-  const list = $$(".task", sec).map((li) => li.dataset.task);
-  tasks[step] = { list, done: new Set(), sec };
-  renderTasks(step);
+const SC = [
+  {
+    key: "vapor", name: "蒸気圧降下", partner: "水蒸気",
+    title: "水にグルコースを溶かすと、水蒸気の量はどうなる？",
+    lead: "ふたをした容器に水が入っています（{25 °C}）。右は水面の拡大図です。水分子は、水から<b class='c-out'>出て</b>水蒸気になったり（蒸発）、水蒸気から水に<b class='c-in'>入ったり</b>（凝縮）しています。",
+    top: "水蒸気", outLab: "出る（蒸発）", inLab: "入る（凝縮）",
+    macro: (s) => `蒸気圧 <span class="n">${Math.round(s.n / C.N0 * 100)}</span><br><small>（純水 ＝ <span class="n">100</span>）</small>`,
+    status: (d) => (d < 0 ? ["down", "出る ＜ 入る → 水蒸気が減っていく"] : d > 0 ? ["up", "出る ＞ 入る → 水蒸気が増えていく"] : ["eq", "出る ＝ 入る：つり合い（気液平衡）"]),
+    tasks: [
+      { id: "eq", kind: "q", text: "まず純水です。バーを見て、水から<b>出る</b>水分子と、水に<b>入る</b>水分子の数をくらべよう。", ch: [["o", "出るほうが多い"], ["e", "同じ"], ["i", "入るほうが多い"]], ans: "e",
+        ok: "同じ数だけ出入りしているので、水蒸気の量は変わりません。この状態を<b>つり合い</b>（気液平衡）といいます。", ng: "バーの長さと数字をくらべてみよう。" },
+      { id: "pred", kind: "pred", text: "<b>予想</b>　水にグルコースを溶かすと、水蒸気の量は？", ch: [["up", "増える"], ["same", "変わらない"], ["down", "減る"]] },
+      { id: "add", kind: "act", btn: "グルコースを溶かす", text: "グルコースを溶かして、「出る」と「入る」がどう変わるか見よう。落ちつくまで待ちます。", done: (s) => s.t - s.tAdd > 6 && Math.abs(s.n / C.N0 - xWater(s.mp)) < 0.012,
+        after: "「出る」が {82} に減り、水蒸気が減っていきました。水蒸気が減ると「入る」も減り、{82} どうしで新しいつり合いになりました。" },
+      { id: "why", kind: "q", text: "グルコースを溶かした直後、「出る」<b>だけ</b>が減ったのはなぜ？", ch: [["b", "グルコースが水蒸気を吸いこんだから"], ["a", "境目（水面）にいる粒子の一部がグルコースになり、出ていける水分子が減ったから"], ["c", "水溶液の温度が下がったから"]], ans: "a",
+        ok: "グルコースは水面から飛び出せません（境目をこえられない）。境目の水分子の割合が減った分だけ、「出る」が減ります。", ng: "拡大図で、境目にぶつかってはね返されている粒子を見てみよう。温度は変えていません。" },
+    ],
+    predAns: ["down", "減る"],
+    sum: {
+      flow: ["グルコース（溶質）が入ると、境目にいる水分子の割合が減る", "<b class='c-out'>出る</b>（蒸発）だけが減り、つり合いがくずれる", "水蒸気が減って<b class='c-in'>入る</b>（凝縮）も減り、新しいつり合いになる", "水溶液の蒸気圧は、純水より低くなる ＝ <b>蒸気圧降下</b>"],
+      how: "水蒸気が減ってつり合う",
+      note: "このアプリのモデルは、変化を大きくかいています。実際の {1.0 mol/kg} の水溶液の蒸気圧は、純水より約 {1.8 %} 低いだけです。",
+    },
+  },
+  {
+    key: "boil", name: "沸点上昇", partner: "泡（水蒸気）",
+    title: "沸騰している水にグルコースを溶かすと？",
+    lead: "ふたのない容器で、純水が {100 °C} で沸騰しています。右は、水の中にできた<b>泡</b>の表面の拡大図です。泡の中身は水蒸気で、まわりから大気圧で押されています。水分子が泡へ<b class='c-out'>出る</b>数が、泡から<b class='c-in'>入る</b>数に負けると、泡はつぶれてしまいます。",
+    top: "泡の中（水蒸気）", outLab: "出る（蒸発）", inLab: "入る（凝縮）",
+    macro: (s) => `<span class="n">${fx(s.T, 2)} °C</span><br>${s.boiling ? "沸騰している" : "沸騰していない"}`,
+    status: (d) => (d < 0 ? ["down", "出る ＜ 入る → 泡がつぶれる（沸騰しない）"] : ["eq", "出る ＝ 入る：泡がつぶれない（沸騰）"]),
+    tasks: [
+      { id: "pred", kind: "pred", text: "<b>予想</b>　{100 °C} で沸騰している水にグルコースを溶かすと、沸騰は？", ch: [["up", "激しくなる"], ["same", "変わらない"], ["stop", "止まる"]] },
+      { id: "add", kind: "act", btn: "グルコースを溶かす", text: "グルコースを溶かして、泡と「出る・入る」を見よう（温度は {100 °C} のまま）。", done: (s) => s.t - s.tAdd > 3,
+        after: "「出る」が {82} に減って「入る」に負け、泡がつぶれました。{100 °C} では沸騰しません。" },
+      { id: "how", kind: "q", text: "もう一度沸騰させるには、「出る」を {100} までもどせばよい。どうする？", ch: [["dn", "温度を下げる"], ["up", "温度を上げる"], ["more", "グルコースをもっと溶かす"]], ans: "up",
+        ok: "温度を上げると水分子の動きが激しくなり、飛び出す水分子（出る）が増えます。", ng: "「出る」を増やしたい。水分子が飛び出しやすくなるのは、どんなとき？" },
+      { id: "heat", kind: "act", btn: "▶ 加熱する", text: "加熱して、もう一度沸騰する温度を確かめよう。", done: (s) => s.boiling && s.t - s.tAct > 1,
+        after: "{100.52 °C} で「出る」が {100} にもどり、ふたたび沸騰しました。沸騰している間、温度は上がりません。" },
+    ],
+    predAns: ["stop", "止まる"],
+    sum: {
+      flow: ["グルコース（溶質）が入ると、境目にいる水分子の割合が減る", "<b class='c-out'>出る</b>（蒸発）だけが減り、泡がつぶれて沸騰が止まる", "<b>温度を上げて</b>「出る」を増やすと、つり合いがもどる", "水溶液の沸点は、純水より高くなる ＝ <b>沸点上昇</b>"],
+      how: "温度を上げる",
+      formula: ["Δ*t* = *K*~b~*m*", "Δ*t*：沸点上昇度 {K}　*K*~b~：モル沸点上昇（水は {0.52 K·kg/mol}）　*m*：質量モル濃度 {mol/kg}", "{0.52 × 1.0 = 0.52 K} → 沸点 {100.52 °C}"],
+    },
+  },
+  {
+    key: "freeze", name: "凝固点降下", partner: "氷",
+    title: "氷水にグルコースを溶かすと、氷はどうなる？",
+    lead: "{0 °C} の水に氷がうかんでいます。右は氷と水の境目の拡大図です。水分子は、水から<b class='c-out'>出て</b>氷にくっついたり（凝固）、氷からはなれて水に<b class='c-in'>入ったり</b>（融解）しています。",
+    top: "氷", outLab: "出る（凝固）", inLab: "入る（融解）",
+    macro: (s) => `<span class="n">${fx(s.T, 2)} °C</span><br>氷の量 <span class="n">${Math.round(s.ice)}</span>`,
+    status: (d) => (d < 0 ? ["down", "出る ＜ 入る → 氷がとけていく"] : d > 0 ? ["up", "出る ＞ 入る → 氷が増えていく"] : ["eq", "出る ＝ 入る：つり合い（氷の量は変わらない）"]),
+    tasks: [
+      { id: "pred", kind: "pred", text: "<b>予想</b>　同じ見方で考えよう。{0 °C} の氷水にグルコースを溶かすと、氷は？", ch: [["up", "増える"], ["same", "変わらない"], ["down", "とける"]] },
+      { id: "add", kind: "act", btn: "グルコースを溶かす", text: "グルコースを溶かして、氷の量と「出る・入る」を見よう。", done: (s) => s.t - s.tAdd > 3.5,
+        after: "ここでも「出る」だけが {82} に減りました。氷にくっつく水分子が減るので、氷はとけていきます。" },
+      { id: "how", kind: "q", text: "氷がとけるのを止めたい。今度は「入る」（氷からはなれる水分子）を減らして、つり合わせよう。どうする？", ch: [["up", "温度を上げる"], ["dn", "温度を下げる"]], ans: "dn",
+        ok: "温度を下げると氷の水分子の動きがおだやかになり、氷からはなれる水分子（入る）が減ります。", ng: "氷の水分子がはなれにくくなるのは、どんなとき？" },
+      { id: "find", kind: "ctrl", text: "温度を変えて、<b>出る ＝ 入る</b> になる温度をさがそう。",
+        body: `<div class="slider"><div class="slider-top"><span class="seg-label">温度</span><span><span class="big-num" data-r="T"></span></span></div>
+          <div class="slider-row"><button type="button" class="pm" data-d="-0.05" aria-label="0.05 °C 下げる">−</button><input type="range" min="-3" max="0.5" step="0.05" value="0" aria-label="温度"><button type="button" class="pm" data-d="0.05" aria-label="0.05 °C 上げる">+</button></div></div><p class="fb info" data-r="hint"></p>`,
+        after: "{−1.85 °C} で「入る」も {82} になり、つり合いました。この温度が、水溶液の凝固点です。" },
+    ],
+    predAns: ["down", "とける"],
+    sum: {
+      flow: ["グルコース（溶質）が入ると、境目にいる水分子の割合が減る", "<b class='c-out'>出る</b>（凝固）だけが減り、氷がとけていく", "<b>温度を下げて</b><b class='c-in'>入る</b>（融解）を減らすと、つり合いがもどる", "水溶液の凝固点は、純水より低くなる ＝ <b>凝固点降下</b>"],
+      how: "温度を下げる",
+      formula: ["Δ*t* = *K*~f~*m*", "Δ*t*：凝固点降下度 {K}　*K*~f~：モル凝固点降下（水は {1.85 K·kg/mol}）　*m*：質量モル濃度 {mol/kg}", "{1.85 × 1.0 = 1.85 K} → 凝固点 {−1.85 °C}"],
+    },
+  },
+  {
+    key: "osmo", name: "浸透圧", partner: "純水（半透膜ごし）",
+    title: "半透膜をはさむと、水はどちらへ動く？",
+    lead: "U字管のまん中を半透膜で仕切り、両側に純水を入れます（{27 °C}）。半透膜は、水分子は通すがグルコースは通さない膜です。右は膜の拡大図で、下が B 側、上が A 側です（向きを変えてかいています）。B から<b class='c-out'>出る</b>水分子と、B に<b class='c-in'>入る</b>水分子をくらべます。",
+    top: "A：純水", outLab: "出る（B → A）", inLab: "入る（A → B）",
+    macro: (s) => `B を押す圧力<br><span class="n">${fx(s.P * PI1, 1)} × 10<sup>5</sup> Pa</span>`,
+    status: (d) => (d < 0 ? ["down", "出る ＜ 入る → 水が B へ移動する"] : d > 0 ? ["up", "出る ＞ 入る → 水が A へ移動する"] : ["eq", "出る ＝ 入る：つり合い（液面は動かない）"]),
+    tasks: [
+      { id: "pred", kind: "pred", text: "<b>予想</b>　同じ見方で考えよう。B にグルコースを溶かすと、水分子は差し引きでどちらへ動く？", ch: [["ab", "A（純水）→ B"], ["ba", "B → A（純水）"], ["no", "動かない"]] },
+      { id: "add", kind: "act", btn: "B にグルコースを溶かす", text: "B にグルコースを溶かして、液面と「出る・入る」を見よう。落ちつくまで待ちます。", done: (s) => s.dh > 0.97,
+        after: "ここでも「出る」だけが減り、水が A から B へ移動しました（浸透）。B の液面が上がると「出る」が増えていき、液面の差ができたところで止まりました。" },
+      { id: "why", kind: "q", text: "液面の差ができると、「出る」が {100} にもどって水の移動が止まった。「出る」が増えたのはなぜ？", ch: [["b", "グルコースが半透膜の穴をふさいだから"], ["a", "高くなった B の液体の重さ（圧力）が、水分子を A へ押し出すから"], ["c", "A の水がなくなったから"]], ans: "a",
+        ok: "圧力をかけると、水分子は押し出されやすくなります。つまり、<b>圧力</b>でも「出る」を増やせます。", ng: "B の液面は A より高くなっています。その分、膜の B 側には何がかかる？" },
+      { id: "find", kind: "ctrl", text: "ピストンで B を押して、<b>液面の高さがそろう</b>圧力をさがそう。",
+        body: `<div class="slider"><div class="slider-top"><span class="seg-label">B を押す圧力</span><span><span class="big-num" data-r="P"></span></span></div>
+          <div class="slider-row"><button type="button" class="pm" data-d="-0.1" aria-label="圧力を下げる">−</button><input type="range" min="0" max="35" step="0.1" value="0" aria-label="圧力"><button type="button" class="pm" data-d="0.1" aria-label="圧力を上げる">+</button></div></div><p class="fb info" data-r="hint"></p>`,
+        after: "{24.9 × 10^5^ Pa} で押すと、液面の差がなくても「出る ＝ 入る」になりました。この圧力が浸透圧です（大気圧の約 {25} 倍）。" },
+    ],
+    predAns: ["ab", "A（純水）→ B"],
+    sum: {
+      flow: ["グルコース（溶質）が入ると、境目（半透膜）にいる水分子の割合が減る", "<b class='c-out'>出る</b>（B → A）だけが減り、水が B へ移動する（浸透）", "<b>B に圧力をかけて</b>「出る」を増やすと、つり合いがもどる", "液面をそろえたまま、つり合わせるのに必要な圧力 ＝ <b>浸透圧</b>"],
+      how: "圧力をかける",
+      formula: ["*Π* = *cRT*", "*Π*：浸透圧 {Pa}　*c*：モル濃度 {mol/L}　*R*：気体定数 {8.31 × 10^3^ Pa·L/(K·mol)}　*T*：絶対温度 {K}", "{1.0 × 8.31 × 10^3^ × 300 = 24.9 × 10^5^ Pa}"],
+      note: "浸透圧より大きい圧力で押すと、水は B から A へ移動します（逆浸透。海水から真水をつくるのに使われています）。スライダーで試せます。",
+    },
+  },
+];
+const NSTEP = SC.length + 1;
+let cur = 0;
+
+/* ---------- 画面を組み立てる ---------- */
+function sceneHTML(c, i) {
+  const task = (t, j) => `
+    <li class="task" data-task="${t.id}">
+      <div class="task-head"><span class="task-num">${j + 1}</span><div class="task-text"><span class="here">いまここ</span>${ts(t.text)}</div></div>
+      <div class="task-body">${
+        t.kind === "act" ? `<div class="row"><button type="button" class="btn primary" data-act>${t.btn}</button></div>`
+        : t.kind === "ctrl" ? ts(t.body)
+        : `<div class="choices ${t.ch.every((x) => x[1].length < 12) ? "inline" : ""}">${t.ch.map((x) => `<button type="button" data-v="${x[0]}">${ts(x[1])}</button>`).join("")}</div>`
+      }<p class="fb" data-fb hidden></p></div>
+    </li>`;
+  const f = c.sum.formula;
+  return `
+<section class="step" data-step="${i}" hidden>
+  <div class="head">
+    <div class="eyebrow">場面 <span class="n">${i + 1}</span>　水溶液の相手は「${c.partner}」</div>
+    <h2>${ts(c.title)}</h2>
+    <p class="lead">${ts(c.lead)}</p>
+  </div>
+  <div class="bench">
+    <div class="viz">
+      <div class="cv-wrap">
+        <canvas width="480" height="280"></canvas>
+        <div class="ov box" data-r="macro" style="left:1.5%;top:2.5%;white-space:normal;max-width:31%"></div>
+        ${c.key === "osmo" ? `<div class="ov tag" style="left:6.5%;top:86.5%">A</div><div class="ov tag" style="left:24.5%;top:86.5%">B</div>` : ""}
+        <div class="ov tag" style="left:36.5%;top:5%">${c.top}</div>
+        <div class="ov tag" data-r="bot" style="left:36.5%;bottom:5%"></div>
+        <div class="ov tag" style="right:2.5%;top:35%"><span class="c-in">↓ 入る</span></div>
+        <div class="ov tag" style="right:2.5%;top:57%"><span class="c-out">↑ 出る</span></div>
+      </div>
+      <div class="rates">
+        <div class="rate-row"><span class="c-out">↑ ${c.outLab}</span><div class="rbar"><i class="o" data-r="bo"></i></div><span class="val" data-r="vo"></span></div>
+        <div class="rate-row"><span class="c-in">↓ ${c.inLab}</span><div class="rbar"><i class="i" data-r="bi"></i></div><span class="val" data-r="vi"></span></div>
+        <div class="rate-foot"><span class="state" data-r="st"></span><span class="tick-note">たて線：純水のつり合い（<span class="n">100</span>）</span></div>
+      </div>
+    </div>
+    <aside class="todo" aria-label="やること">
+      <div class="todo-head"><h3>やること</h3><span class="prog"></span></div>
+      <ol class="tasks">${c.tasks.map(task).join("")}</ol>
+    </aside>
+    <div class="out">
+      <div class="viz-tools">
+        <div class="legend"><span><i class="lg-w"></i>水分子</span><span><i class="lg-s"></i>グルコース（境目をこえられない）</span></div>
+        <button type="button" class="small-btn" data-reset>↺ はじめから</button>
+      </div>
+      <p class="note">数字は、境目を <span class="n">1</span> 秒間に通る水分子の数を、純水のつり合いを <span class="n">100</span> として表したものです。見やすくするため、分子の数は少なく、変化は大きくかいています。</p>
+    </div>
+  </div>
+  <div class="sum" hidden>
+    <h3>✓ まとめ：${c.name}</h3>
+    <p class="pred" data-r="pred"></p>
+    <ol class="flow">${c.sum.flow.map((x) => `<li>${ts(x)}</li>`).join("")}</ol>
+    ${VIEW(true, "つり合いを取りもどす：" + c.sum.how)}
+    ${f ? `<div class="formula"><span class="main">${ts(f[0])}</span><span class="desc">${ts(f[1])}</span><span class="calc">この水溶液（グルコース {1.0 mol/kg}）では　${ts(f[2])}</span></div>`.replace(/\{([^}]+)\}/g, (m, a) => `<span class="n">${a.replace(/ /g, "&nbsp;")}</span>`) : ""}
+    ${c.sum.note ? `<p class="note">${ts(c.sum.note)}</p>` : ""}
+  </div>
+</section>`;
 }
-function isDone(step, id) { return tasks[step].done.has(id); }
-function current(step) { const t = tasks[step]; return t.list.find((id) => !t.done.has(id)); }
-function finish(step, id) {
-  const t = tasks[step];
-  if (t.done.has(id)) return;
-  t.done.add(id);
-  renderTasks(step);
-  if (t.done.size === t.list.length) {
-    stepDone.add(step);
-    const sum = $(".sum", t.sec);
-    sum.hidden = false;
-    fillPredResult(step);
-    renderNav();
-    setTimeout(() => sum.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "nearest" }), 250);
+
+const LAST = `
+<section class="step" data-step="${SC.length}" hidden>
+  <div class="head">
+    <div class="eyebrow">場面 <span class="n">5</span>　つなげる</div>
+    <h2>${ts("{4}つの現象を、{1}つの見方でつなげよう")}</h2>
+    <p class="lead">${ts("{4}つの場面は、相手がちがうだけで、起きていたことは同じでした。溶質の種類と濃さを変えて、{4}つの値がどう動くかを見ましょう。")}</p>
+  </div>
+  <div class="common">
+    <b class="big">溶質の粒子は境目をこえられない。だから、水溶液から「出る」水分子だけが減る。</b>
+    ${VIEW(false, "つり合いを取りもどす（やり方が " + ts("{4}") + "通り）")}
+  </div>
+  <div class="card ctl">
+    <div class="row"><span class="seg-label">溶質</span><div class="seg" id="solSeg">
+      <button type="button" data-i="1" data-n="グルコース" aria-pressed="true">グルコース</button><button type="button" data-i="1" data-n="尿素">尿素</button><button type="button" data-i="2" data-n="塩化ナトリウム">${ts("[NaCl]")}</button></div></div>
+    <div class="slider"><div class="slider-top"><span class="seg-label">溶かした量（水 ${ts("{1 kg}")} あたり）</span><span class="big-num" id="mVal"></span></div>
+      <div class="slider-row"><button type="button" class="pm" id="mDn" aria-label="減らす">−</button><input type="range" id="mRange" min="0" max="2" step="0.1" value="1" aria-label="溶かした量"><button type="button" class="pm" id="mUp" aria-label="増やす">+</button></div></div>
+    <p class="times" id="times" style="grid-column:1/-1"></p>
+  </div>
+  <div class="cards4" id="cards4"></div>
+  <p class="note">${ts("蒸気圧は {25 °C}、浸透圧は {27 °C} の値です。うすい水溶液なので、質量モル濃度 {mol/kg} とモル濃度 {mol/L} を同じ値とみなしています。電解質は完全に電離するとしています。")}</p>
+
+  <h3 class="sec">確認問題</h3>
+  <div class="quiz" id="quiz"></div>
+  <div class="score" id="score" hidden></div>
+
+  <h3 class="sec">自分のことばでまとめよう</h3>
+  <div class="card" style="display:flex;flex-direction:column;gap:10px">
+    <p>${ts("「出る」「入る」「つり合い」の{3}語を使って、{4}つの現象に共通するしくみを説明しよう。")}</p>
+    <textarea id="memo" placeholder="ここに書く（このアプリには保存されません。プリントやノートにも書いておこう）"></textarea>
+    <div class="row"><button type="button" class="btn" id="exBtn">例を見る</button></div>
+    <p class="fb info" id="exTxt" hidden>${ts("例：溶質の粒子は境目をこえられないので、溶質を溶かすと、水溶液から「出る」水分子だけが減る。相手から「入る」水分子は変わらないので、つり合いがくずれる。水蒸気が減る（蒸気圧降下）、温度を上げる（沸点上昇）、温度を下げる（凝固点降下）、圧力をかける（浸透圧）のどれかで、ふたたび「出る ＝ 入る」のつり合いになる。減り方は溶質粒子の数で決まるので、どの現象の変化も溶質粒子の濃度に比例する。")}</p>
+  </div>
+</section>`;
+
+$("#main").innerHTML = SC.map(sceneHTML).join("") + LAST;
+$("#steps").innerHTML = [...SC.map((c) => c.name), "つなげる"].map((n, i) => `<button type="button" data-go="${i}"><span class="k">${i + 1}</span><span class="t">${n}</span></button>`).join("");
+
+/* ================= 境目の拡大図（4場面で同じ形） ================= */
+const Z = { x: 168, y: 8, w: 304, h: 264 }, BY = 140, R0 = 5;   // R0：速さ 1 のとき 1 秒に境目を通る数
+function makeSim(key) {
+  const inX = () => Z.x + 9 + rnd() * (Z.w - 18);
+  const liq = [], top = [];
+  for (let i = 0; i < 48; i++) liq.push({ x: inX(), y: BY + 10 + rnd() * (Z.y + Z.h - BY - 18), vx: 0, vy: 0, s: false });
+  if (key === "vapor" || key === "boil") for (let i = 0; i < (key === "vapor" ? C.N0 : 44); i++) top.push(newGas(inX(), Z.y + 8 + rnd() * (BY - Z.y - 16)));
+  if (key === "freeze") for (let j = 0; j < 7; j++) for (let i = 0; i < 15; i++) top.push({ x: Z.x + 9 + i * 20.5 + (j % 2 ? 10 : 0), y: BY - 11 - j * 19, ph: rnd() * 6.28 });
+  if (key === "osmo") for (let i = 0; i < 48; i++) top.push({ x: inX(), y: Z.y + 8 + rnd() * (BY - Z.y - 18), vx: 0, vy: 0 });
+  return { key, liq, top, fly: [], oc: 0, ic: 0, fc: 0 };
+}
+function newGas(x, y, up) { const a = up ? -Math.PI / 2 + (rnd() - 0.5) * 2 : rnd() * 6.28; return { x, y, vx: 1.8 * Math.cos(a), vy: 1.8 * Math.sin(a) }; }
+function brown(p, f, k, y0, y1) {
+  p.vx = p.vx * 0.9 + (rnd() - 0.5) * 0.9 * k; p.vy = p.vy * 0.9 + (rnd() - 0.5) * 0.9 * k;
+  p.x += p.vx * f; p.y += p.vy * f;
+  if (p.x < Z.x + 6) { p.x = Z.x + 6; p.vx = Math.abs(p.vx); } if (p.x > Z.x + Z.w - 6) { p.x = Z.x + Z.w - 6; p.vx = -Math.abs(p.vx); }
+  if (p.y < y0) { p.y = y0; p.vy = Math.abs(p.vy); } if (p.y > y1) { p.y = y1; p.vy = -Math.abs(p.vy); }
+}
+function simStep(sim, s, r, dt) {
+  const f = Math.min(dt * 60, 3), key = sim.key, gas = key === "vapor" || key === "boil";
+  const hot = key === "boil" ? 1.5 : key === "freeze" ? 0.7 : 1;
+  for (const p of sim.liq) brown(p, f, (p.s ? 0.7 : 1) * hot, BY + 7, Z.y + Z.h - 7);
+  if (gas) for (const p of sim.top) {
+    p.x += p.vx * f; p.y += p.vy * f;
+    if (p.x < Z.x + 5) { p.x = Z.x + 5; p.vx = Math.abs(p.vx); } if (p.x > Z.x + Z.w - 5) { p.x = Z.x + Z.w - 5; p.vx = -Math.abs(p.vx); }
+    if (p.y < Z.y + 5) { p.y = Z.y + 5; p.vy = Math.abs(p.vy); } if (p.y > BY - 6) { p.y = BY - 6; p.vy = -Math.abs(p.vy); }
+  }
+  if (key === "osmo") for (const p of sim.top) brown(p, f, 1, Z.y + 7, BY - 8);
+  // 境目をこえる水分子（出る・入る）と、はね返される溶質
+  sim.oc += R0 * Math.max(0, r.out) * dt; sim.ic += R0 * Math.max(0, r.in) * dt; sim.fc += R0 * (1 - xWater(s.mp)) * dt;
+  while (sim.oc >= 1) {
+    sim.oc -= 1;
+    const cand = sim.liq.filter((p) => !p.s && p.y < BY + 40), p = cand[Math.floor(rnd() * cand.length)];
+    const x = p ? p.x : Z.x + 20 + rnd() * (Z.w - 40);
+    if (p) { p.y = BY + 50 + rnd() * 60; p.x = Z.x + 9 + rnd() * (Z.w - 18); }
+    sim.fly.push({ d: 1, x, t: 0 });
+  }
+  while (sim.ic >= 1) {
+    sim.ic -= 1;
+    let x = Z.x + 20 + rnd() * (Z.w - 40);
+    if (key === "vapor" && sim.top.length > Math.round(s.n)) { const g = sim.top.splice(Math.floor(rnd() * sim.top.length), 1)[0]; x = g.x; }
+    if (key === "freeze") x = Z.x + 9 + Math.floor(rnd() * 15) * 20.5;
+    sim.fly.push({ d: -1, x, t: 0 });
+  }
+  while (sim.fc >= 1) { sim.fc -= 1; const sol = sim.liq.filter((p) => p.s); const p = sol[Math.floor(rnd() * sol.length)]; if (p) sim.fly.push({ d: 0, x: p.x, t: 0, p }); }
+  for (const q of sim.fly) {
+    q.t += dt / 0.75;
+    if (q.t >= 1 && q.d === 1 && key === "vapor" && sim.top.length < Math.round(s.n)) sim.top.push(newGas(q.x, BY - 20, true));
+  }
+  sim.fly = sim.fly.filter((q) => q.t < 1);
+  if (key === "vapor") {   // 数のずれが大きくなったら合わせる
+    while (sim.top.length > Math.round(s.n) + 2) sim.top.pop();
+    while (sim.top.length < Math.round(s.n) - 2) sim.top.push(newGas(Z.x + 20 + rnd() * (Z.w - 40), BY - 20, true));
+  }
+}
+function addSolute(sim) { let n = 0; for (const p of sim.liq) p.s = false; while (n < 9) { const p = sim.liq[Math.floor(rnd() * sim.liq.length)]; if (!p.s) { p.s = true; n++; } } }
+
+function drawZoom(ctx, sim, s) {
+  const key = sim.key;
+  ctx.save();
+  ctx.beginPath(); ctx.roundRect(Z.x, Z.y, Z.w, Z.h, 8); ctx.clip();
+  ctx.fillStyle = key === "freeze" ? COL["ice-fill"] : key === "osmo" ? COL.liq : COL.gas; ctx.fillRect(Z.x, Z.y, Z.w, BY - Z.y);
+  ctx.fillStyle = COL.liq; ctx.fillRect(Z.x, BY, Z.w, Z.y + Z.h - BY);
+  const t = s.t;
+  if (key === "freeze") for (const p of sim.top) circle(ctx, p.x + Math.sin(t * 9 + p.ph) * 0.8, p.y + Math.cos(t * 8 + p.ph) * 0.8, 5, COL.ice);
+  else for (const p of sim.top) circle(ctx, p.x, p.y, key === "osmo" ? 5 : 4.5, COL.water);
+  const hide = new Set(sim.fly.filter((q) => q.d === 0).map((q) => q.p));
+  for (const p of sim.liq) { if (hide.has(p)) continue; if (p.s) hexagon(ctx, p.x, p.y, 7.5); else circle(ctx, p.x, p.y, 5, COL.water); }
+  if (key === "osmo") line(ctx, [[Z.x, BY], [Z.x + Z.w, BY]], COL.ng, 6, [16, 10]);
+  else line(ctx, [[Z.x, BY], [Z.x + Z.w, BY]], COL.muted, 1.5, key === "freeze" ? null : [5, 4]);
+  for (const q of sim.fly) {
+    const a = Math.min(1, Math.sin(Math.PI * q.t) * 1.6 + 0.15);
+    ctx.globalAlpha = a;
+    if (q.d === 0) {            // 溶質：境目ではね返される
+      const y = BY + 9 + 16 * Math.abs(1 - 2 * q.t);
+      hexagon(ctx, q.x, y, 7.5); ctx.beginPath(); ctx.arc(q.x, y, 10.5, 0, 6.3); ctx.strokeStyle = COL.solute; ctx.lineWidth = 1.5; ctx.stroke();
+    } else {
+      const col = q.d === 1 ? COL["c-out"] : COL["c-in"], y = BY + q.d * (22 - 44 * q.t);
+      line(ctx, [[q.x, y + q.d * 16], [q.x, y + q.d * 7]], col, 2.5);
+      circle(ctx, q.x, y, 5.5, COL.water, col, 2.5);
+    }
+    ctx.globalAlpha = 1;
+  }
+  ctx.restore();
+  ctx.beginPath(); ctx.roundRect(Z.x, Z.y, Z.w, Z.h, 8); ctx.strokeStyle = COL.line; ctx.lineWidth = 1.5; ctx.stroke();
+}
+
+/* ---------- 左の全体図 ---------- */
+const DOTS = Array.from({ length: 12 }, () => [rnd(), rnd()]);
+function vessel(ctx, y1, y2, yl, lid) {
+  ctx.fillStyle = COL.liq; ctx.fillRect(34, yl, 90, y2 - yl);
+  line(ctx, [[34, y1], [34, y2], [124, y2], [124, y1]], COL.muted, 2.5);
+  if (lid) line(ctx, [[28, y1], [130, y1]], COL.muted, 5);
+  line(ctx, [[35, yl], [123, yl]], COL.water, 1.5);
+}
+function soluteDots(ctx, x0, y0, w, h, n) { for (let i = 0; i < n; i++) hexagon(ctx, x0 + 6 + DOTS[i][0] * (w - 12), y0 + 6 + DOTS[(i + 5) % 12][1] * (h - 12), 3.6); }
+function drawMacro(ctx, key, s) {
+  let mx = 79, my = 160;
+  if (key === "vapor") {
+    vessel(ctx, 86, 236, 166, true);
+    const k = Math.round(s.n / C.N0 * 10 + 0.001);
+    for (let i = 0; i < k; i++) circle(ctx, 42 + DOTS[i][0] * 74, 96 + DOTS[i][1] * 60, 2.6, COL.water);
+    if (s.mp) soluteDots(ctx, 36, 170, 86, 62, 6);
+    my = 166;
+  } else if (key === "boil") {
+    vessel(ctx, 84, 214, 112, false);
+    if (s.mp) soluteDots(ctx, 36, 118, 86, 92, 6);
+    const big = s.heat ? 1 : 0.55;
+    for (const dx of [-16, 0, 16]) { ctx.beginPath(); ctx.moveTo(79 + dx - 7, 250); ctx.quadraticCurveTo(79 + dx, 250 - 30 * big, 79 + dx + 7, 250); ctx.fillStyle = COL.warm; ctx.fill(); }
+    line(ctx, [[50, 252], [108, 252]], COL.muted, 3);
+    if (s.boiling) for (let i = 0; i < 6; i++) { const u = (s.t * 0.9 + i / 6) % 1; circle(ctx, 46 + DOTS[i][0] * 66, 208 - u * 92, 3 + u * 4, COL.gas, COL.water, 1.3); }
+    else if (s.mp) circle(ctx, 79, 196, 2.5 + Math.abs(Math.sin(s.t * 3)) * 2, COL.gas, COL.water, 1.2);
+    mx = 79; my = 176;
+    if (s.boiling) circle(ctx, mx, my, 8, COL.gas, COL.water, 1.3);
+  } else if (key === "freeze") {
+    vessel(ctx, 84, 236, 122, false);
+    if (s.mp) soluteDots(ctx, 36, 150, 86, 82, 6);
+    const h = 9 + s.ice * 0.3;
+    ctx.beginPath(); ctx.roundRect(79 - h, 126 - h * 0.55, 2 * h, 1.45 * h, 5); ctx.fillStyle = COL["ice-fill"]; ctx.fill(); ctx.strokeStyle = COL.ice; ctx.lineWidth = 2; ctx.stroke();
+    my = 126 + h * 0.9;
   } else {
-    // スマホで次の課題が画面の外にあるときは、見える位置へ
-    const li = $(`.task[data-task="${current(step)}"]`, t.sec);
-    const r = li.getBoundingClientRect();
-    if (r.bottom > innerHeight - 80 || r.top < 0) li.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "nearest" });
+    const yA = 138 + s.dh * 22, yB = 138 - s.dh * 22;
+    ctx.fillStyle = COL.liq; ctx.fillRect(36, yA, 28, 235 - yA); ctx.fillRect(36, 205, 43, 30);
+    ctx.fillStyle = s.mp ? COL["solute-soft"] : COL.liq; ctx.fillRect(94, yB, 28, 235 - yB); ctx.fillRect(79, 205, 43, 30);
+    if (s.mp) { soluteDots(ctx, 94, Math.max(yB, 150), 28, 60, 4); soluteDots(ctx, 82, 206, 38, 28, 2); }
+    line(ctx, [[36, 78], [36, 235], [122, 235], [122, 78]], COL.muted, 2.5);
+    line(ctx, [[64, 78], [64, 205], [94, 205], [94, 78]], COL.muted, 2.5);
+    line(ctx, [[36, yA], [64, yA]], COL.water, 1.5); line(ctx, [[94, yB], [122, yB]], COL.water, 1.5);
+    line(ctx, [[79, 205], [79, 235]], COL.ng, 3.5, [5, 3]);
+    if (s.showPiston) {
+      ctx.fillStyle = COL.muted; ctx.fillRect(96, yB - 9, 24, 8); ctx.fillRect(106, yB - 34, 4, 26);
+      if (s.P > 0.01) { const L = 8 + s.P * 9; line(ctx, [[108, yB - 40 - L], [108, yB - 40]], COL.warm, 3); ctx.beginPath(); ctx.moveTo(108, yB - 34); ctx.lineTo(102, yB - 43); ctx.lineTo(114, yB - 43); ctx.fillStyle = COL.warm; ctx.fill(); }
+    }
+    if (s.mp) line(ctx, [[30, 138], [128, 138]], COL.muted, 1, [3, 3]);
+    my = 220;
+  }
+  // 拡大している場所
+  circle(ctx, mx, my, 11, null, COL.accent, 2);
+  line(ctx, [[mx + 8, my - 8], [Z.x, Z.y + 8]], COL.accent, 1, [4, 3]); line(ctx, [[mx + 8, my + 8], [Z.x, Z.y + Z.h - 8]], COL.accent, 1, [4, 3]);
+}
+
+/* ================= やること ================= */
+const scenes = SC.map((c, i) => {
+  const sec = $(`section[data-step="${i}"]`);
+  const R = {}; $$("[data-r]", sec).forEach((e) => (R[e.dataset.r] = e));
+  return { c, i, sec, R, cv: makeCanvas($("canvas", sec)), done: new Set(), pred: null, pending: null };
+});
+const stepDone = new Set();
+
+function resetScene(sc) {
+  sc.s = Object.assign(initState(sc.c.key), { t: 0, tAdd: 0, tAct: 0 });
+  sc.sim = makeSim(sc.c.key);
+  sc.done.clear(); sc.pred = null; sc.pending = null; sc.eo = sc.ei = null;
+  stepDone.delete(sc.i);
+  $(".sum", sc.sec).hidden = true;
+  $$(".task", sc.sec).forEach((li) => {
+    $$(".choices button", li).forEach((b) => { b.className = ""; b.removeAttribute("aria-pressed"); b.disabled = false; });
+    $$("[data-act]", li).forEach((b) => (b.disabled = false));
+    const fb = $("[data-fb]", li); fb.hidden = true;
+    const rg = $("input[type=range]", li); if (rg) rg.value = rg.getAttribute("value");
+  });
+  renderTasks(sc); renderNav();
+}
+const curTask = (sc) => sc.c.tasks.find((t) => !sc.done.has(t.id));
+function renderTasks(sc) {
+  const now = curTask(sc);
+  $$(".task", sc.sec).forEach((li, j) => {
+    const id = li.dataset.task, st = sc.done.has(id) ? "done" : now && id === now.id ? "now" : "later";
+    li.dataset.state = st; li.inert = st === "later";
+    $(".task-num", li).textContent = st === "done" ? "✓" : String(j + 1);
+  });
+  $(".prog", sc.sec).innerHTML = `<span class="n">${sc.done.size}</span> / <span class="n">${sc.c.tasks.length}</span> 完了`;
+}
+function showFb(sc, id, cls, html) { const fb = $(`.task[data-task="${id}"] [data-fb]`, sc.sec); fb.className = "fb " + cls; fb.innerHTML = ts(html); fb.hidden = false; }
+function finish(sc, id) {
+  if (sc.done.has(id)) return;
+  const t = sc.c.tasks.find((x) => x.id === id);
+  if (t.after) showFb(sc, id, "ok", t.after);
+  sc.done.add(id); renderTasks(sc);
+  const smooth = { behavior: reduceMotion ? "auto" : "smooth", block: "nearest" };
+  if (sc.done.size === sc.c.tasks.length) {
+    stepDone.add(sc.i);
+    const sum = $(".sum", sc.sec); sum.hidden = false;
+    const [v, lab] = sc.c.predAns, mine = sc.c.tasks.find((x) => x.kind === "pred").ch.find((x) => x[0] === sc.pred);
+    sc.R.pred.innerHTML = ts(`あなたの予想：<b>${mine ? mine[1] : "—"}</b>　→　結果：<b>${lab}</b>　${sc.pred === v ? "予想どおり！" : "予想とちがった理由を、下の流れで確かめよう。"}`);
+    setTimeout(() => sum.scrollIntoView(smooth), 300);
+  } else {
+    const li = $(`.task[data-task="${curTask(sc).id}"]`, sc.sec), r = li.getBoundingClientRect();
+    if (r.bottom > innerHeight - 80 || r.top < 0) li.scrollIntoView(smooth);
   }
   renderNav();
 }
-function renderTasks(step) {
-  const t = tasks[step];
-  const now = current(step);
-  $$(".task", t.sec).forEach((li) => {
-    const id = li.dataset.task;
-    const st = t.done.has(id) ? "done" : id === now ? "now" : "later";
-    li.dataset.state = st;
-    li.inert = st === "later";
-    $(".task-num", li).textContent = st === "done" ? "✓" : String(t.list.indexOf(id) + 1);
-  });
-  $(".prog", t.sec).innerHTML = `<span class="n">${t.done.size}</span> / <span class="n">${t.list.length}</span> 完了`;
-}
-
-/* 予想（どれを選んでも記録して次へ） */
-const PRED_ANS = {
-  1: ["down", "へる"], 2: ["high", "100 °C より高い"], 3: ["low", "0 °C より低い"], 4: ["ab", "A → B"],
-};
-$$(".choices[data-pred]").forEach((box) => {
-  const step = +box.dataset.pred;
-  box.addEventListener("click", (ev) => {
+scenes.forEach((sc) => {
+  sc.sec.addEventListener("click", (ev) => {
     const b = ev.target.closest("button"); if (!b) return;
-    $$("button", box).forEach((x) => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
-    preds[step] = { v: b.dataset.v, label: b.textContent };
-    finish(step, "pred");
-  });
-});
-function fillPredResult(step) {
-  const el = $(`[data-pred-result="${step}"]`); if (!el || !PRED_ANS[step]) return;
-  const p = preds[step], [ans, label] = PRED_ANS[step];
-  el.innerHTML = !p ? `答え：<b>${label}</b>`
-    : p.v === ans ? `あなたの予想「${p.label}」→ <b style="color:var(--ok)">予想どおり！</b>`
-    : `あなたの予想「${p.label}」→ 実際は <b>${label}</b> でした。理由を下で確かめよう。`;
-}
-
-/* 確認の問い（正解するまで選び直せる） */
-$$(".choices[data-check]").forEach((box) => {
-  const step = +box.closest("section").dataset.step;
-  const id = box.closest(".task").dataset.task;
-  const fb = box.nextElementSibling;
-  box.addEventListener("click", (ev) => {
-    const b = ev.target.closest("button"); if (!b || b.disabled) return;
-    if (b.dataset.v === box.dataset.check) {
-      b.classList.add("right");
-      $$("button", box).forEach((x) => { x.disabled = true; });
-      fb.className = "fb ok"; fb.textContent = "正解！";
-      finish(step, id);
-    } else {
-      b.classList.add("wrong"); b.disabled = true;
-      fb.className = "fb ng"; fb.textContent = "ちがいます。" + box.dataset.hint;
+    if (b.hasAttribute("data-reset")) return resetScene(sc);
+    const li = b.closest(".task"); if (!li) return;
+    const t = sc.c.tasks.find((x) => x.id === li.dataset.task), s = sc.s;
+    if (t.kind === "pred") {
+      sc.pred = b.dataset.v;
+      $$(".choices button", li).forEach((x) => { x.setAttribute("aria-pressed", x === b ? "true" : "false"); x.disabled = true; });
+      finish(sc, t.id);
+    } else if (t.kind === "q") {
+      if (b.dataset.v === t.ans) { b.className = "right"; $$(".choices button", li).forEach((x) => (x.disabled = true)); showFb(sc, t.id, "ok", "正解！ <span style='color:var(--ink);font-weight:400'>" + t.ok + "</span>"); finish(sc, t.id); }
+      else { b.className = "wrong"; showFb(sc, t.id, "ng", t.ng); }
+    } else if (t.kind === "act") {
+      b.disabled = true; s.tAct = s.t;
+      if (t.id === "add") { s.mp = 1; s.tAdd = s.t; addSolute(sc.sim); if (sc.c.key === "boil") s.heat = false; }
+      if (t.id === "heat") s.heat = true;
+      sc.pending = t;
+    } else if (b.classList.contains("pm")) {
+      const rg = $("input[type=range]", li); rg.value = (+rg.value + +b.dataset.d).toFixed(2); rg.dispatchEvent(new Event("input", { bubbles: true }));
     }
   });
+  sc.sec.addEventListener("input", (ev) => {
+    if (ev.target.type !== "range") return;
+    if (sc.c.key === "freeze") sc.s.T = +ev.target.value;
+    if (sc.c.key === "osmo") sc.s.P = +ev.target.value / PI1;
+  });
+  resetScene(sc);
 });
 
-/* ================= ステップの移動 ================= */
-const STEP_NAMES = ["はじめに", "蒸気圧降下", "沸点上昇", "凝固点降下", "浸透圧", "まとめ"];
-let cur = 0;
-const modules = {};
-function go(n) {
-  n = clamp(n, 0, STEP_COUNT - 1);
-  if (modules[cur] && modules[cur].leave) modules[cur].leave();
-  cur = n;
-  $$("section.step").forEach((s) => { s.hidden = +s.dataset.step !== n; });
-  if (modules[n] && modules[n].enter) modules[n].enter();
-  renderNav();
-  window.scrollTo({ top: 0 });
-  const pill = $(`#steps button[data-go="${n}"]`);
-  pill.scrollIntoView({ block: "nearest", inline: "center" });
+/* スライダーでさがす課題（凝固点・浸透圧） */
+function ctrlUpdate(sc, d) {
+  const s = sc.s, li = $('.task[data-task="find"]', sc.sec); if (!li) return;
+  const hint = $('[data-r="hint"]', li), on = curTask(sc) && curTask(sc).id === "find";
+  if (sc.c.key === "freeze") {
+    $('[data-r="T"]', li).innerHTML = `${fx(s.T, 2)}&nbsp;°C`;
+    if (!on) { hint.textContent = ""; return; }
+    hint.textContent = d < 0 ? "まだ氷がとけている（出る ＜ 入る）。「入る」をもっと減らそう。" : d > 0 ? "氷が増えている（出る ＞ 入る）。下げすぎです。" : "";
+    if (d === 0) finish(sc, "find");
+  } else {
+    s.showPiston = on || sc.done.has("find");
+    $('[data-r="P"]', li).innerHTML = `${fx(s.P * PI1, 1)}&nbsp;×&nbsp;10<sup>5</sup>&nbsp;Pa`;
+    if (!on) { hint.textContent = ""; return; }
+    const gap = s.dh;
+    hint.textContent = gap > 0.03 ? "B の液面のほうが高い。もっと強く押そう。" : gap < -0.03 ? "B の液面のほうが低い（押しすぎ）。水が A へ押し出されています。" : Math.abs(s.P - 1) > 0.006 ? "あと少し。" : "";
+    if (Math.abs(s.P * PI1 - PI1) <= 0.11 && Math.abs(gap) < 0.02) finish(sc, "find");
+  }
+}
+
+function updateScene(sc, dt) {
+  const s = sc.s, key = sc.c.key;
+  s.t += dt;
+  step(key, s, dt);
+  const r = rates(key, s);
+  simStep(sc.sim, s, r, dt);
+  const ctx = sc.cv.ctx; ctx.clearRect(0, 0, 480, 280);
+  drawMacro(ctx, key, s); drawZoom(ctx, sc.sim, s);
+  const o = Math.round(r.out * 100), n = Math.round(r.in * 100), d = Math.sign(o - n);
+  sc.R.bo.style.width = clamp(r.out / 1.3, 0, 1) * 100 + "%"; sc.R.bi.style.width = clamp(r.in / 1.3, 0, 1) * 100 + "%";
+  if (sc.eo !== o) sc.R.vo.textContent = sc.eo = o;
+  if (sc.ei !== n) sc.R.vi.textContent = sc.ei = n;
+  const [cls, txt] = sc.c.status(d), key2 = cls + txt;
+  if (sc.stKey !== key2) { sc.stKey = key2; sc.R.st.className = "state " + cls; sc.R.st.textContent = txt; }
+  const mh = sc.c.macro(s); if (sc.mh !== mh) sc.R.macro.innerHTML = sc.mh = mh;
+  const bot = s.mp ? (key === "osmo" ? "B：水溶液" : "水溶液") : key === "osmo" ? "B：純水" : "純水"; if (sc.R.bot.textContent !== bot) sc.R.bot.textContent = bot;
+  if (sc.pending && sc.pending.done(s)) { const t = sc.pending; sc.pending = null; finish(sc, t.id); }
+  ctrlUpdate(sc, d);
+}
+
+/* ================= つなげる ================= */
+const PH = [
+  { who: "相手：水蒸気", name: "蒸気圧降下", how: "水蒸気が減って、つり合う", f: "（{25 °C} の蒸気圧）", val: (mp) => `${fx(vaporKPa(mp), 2)} kPa`, dl: (mp) => `純水より ${fx(vaporKPa(0) - vaporKPa(mp), 2)} kPa 低い` },
+  { who: "相手：泡（水蒸気）", name: "沸点上昇", how: "<b>温度を上げて</b>「出る」を増やす", f: "{Δ}*t* {=} *K*~b~*m*", val: (mp) => `${fx(bp(mp), 2)} °C`, dl: (mp) => `純水より ${fx(bp(mp) - 100, 2)} K 高い` },
+  { who: "相手：氷", name: "凝固点降下", how: "<b>温度を下げて</b>「入る」を減らす", f: "{Δ}*t* {=} *K*~f~*m*", val: (mp) => `${fx(fp(mp), 2)} °C`, dl: (mp) => `純水より ${fx(-fp(mp), 2)} K 低い` },
+  { who: "相手：純水（半透膜ごし）", name: "浸透圧", how: "<b>圧力をかけて</b>「出る」を増やす", f: "*Π* {=} *cRT*", val: (mp) => `${fx(osmoticPa(mp) / 1e5, 1)} × 10<sup>5</sup> Pa`, dl: () => "液面をそろえる圧力" },
+];
+$("#cards4").innerHTML = PH.map((p, k) => `<div class="pc"><span class="who">${p.who}</span><h4>${p.name}</h4><p class="how">${ts(p.how)}</p><div class="valrow"><span class="big-num" id="pv${k}"></span><span class="delta" id="pd${k}"></span></div><div class="lock"><i id="pl${k}"></i></div><span class="f">${ts(p.f)}</span></div>`).join("");
+const link = { i: 1, name: "グルコース" };
+function renderLink() {
+  const m = +$("#mRange").value, mp = m * link.i;
+  $("#mVal").innerHTML = `${fx(m, 1)}&nbsp;mol`;
+  const num = (h) => h.replace(/ /g, "&nbsp;");
+  PH.forEach((p, k) => {
+    $("#pv" + k).innerHTML = num(p.val(mp));
+    $("#pd" + k).innerHTML = p.dl(mp).replace(/(−?[\d.]+ (?:kPa|K))/, (a) => `<span class="n">${num(a)}</span>`);
+    $("#pl" + k).style.width = mp / 4 * 100 + "%";
+  });
+  const ion = link.i === 2 ? ts("　[NaCl] ⟶ [Na]<sup>+</sup> {+} [Cl]<sup>−</sup> と電離するので、粒子の数は {2} 倍です。") : "";
+  $("#times").innerHTML = ts(`溶質粒子の濃度 <span class="n" style="font-size:24px;font-weight:700;color:var(--solute)">${fx(mp, 1)}</span> {mol/kg}　→　{4}つの変化はどれも、「粒子 {1.0 mol/kg}」のときの <span class="n" style="font-size:24px;font-weight:700;color:var(--solute)">${fx(mp, 1)}</span> 倍${link.name === "尿素" ? "　（グルコースと同じ値。溶質の種類にはよらない）" : ""}`) + ion;
+}
+$("#mRange").addEventListener("input", renderLink);
+$("#mDn").addEventListener("click", () => { $("#mRange").value = +$("#mRange").value - 0.1; renderLink(); });
+$("#mUp").addEventListener("click", () => { $("#mRange").value = +$("#mRange").value + 0.1; renderLink(); });
+$("#solSeg").addEventListener("click", (ev) => {
+  const b = ev.target.closest("button"); if (!b) return;
+  $$("button", $("#solSeg")).forEach((x) => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
+  link.i = +b.dataset.i; link.name = b.dataset.n; renderLink();
+});
+renderLink();
+$("#exBtn").addEventListener("click", () => { $("#exTxt").hidden = false; });
+
+const QUIZ = [
+  { q: "{4}つの現象に共通する、いちばんもとの原因は？", o: ["溶質が水分子の動きをおそくするから", "溶質の粒子は境目をこえられず、水溶液から出る水分子だけが減るから", "溶質が水蒸気や氷と反応するから"], a: 1, e: "「入る」は変わらず「出る」だけが減るので、つり合いがくずれます。" },
+  { q: "グルコース水溶液の濃度を {2} 倍にすると、沸点上昇度・凝固点降下度・浸透圧は？", o: ["どれも {2} 倍になる", "浸透圧だけ {2} 倍になる", "どれも変わらない"], a: 0, e: "「出る」の減り方が溶質粒子の濃度に比例するので、取りもどすのに必要な変化もどれも比例します。" },
+  { q: "{0.10 mol/kg} のグルコース水溶液と、{0.10 mol/kg} の塩化ナトリウム水溶液。凝固点が低いのは？", o: ["グルコース水溶液", "塩化ナトリウム水溶液", "同じ"], a: 1, e: "[NaCl] は [Na]<sup>+</sup> と [Cl]<sup>−</sup> に電離し、粒子の濃度が {0.20 mol/kg} になります。凝固点降下度も約 {2} 倍です。" },
+  { q: "海水と純水を半透膜で仕切り、海水側に浸透圧より大きい圧力をかけた。水分子は差し引きでどちらへ動く？", o: ["純水 → 海水", "海水 → 純水", "動かない"], a: 1, e: "圧力で「出る」が「入る」より大きくなります（逆浸透）。海水から真水をつくる方法です。" },
+];
+let nRight = 0, nAns = 0;
+QUIZ.forEach((x, i) => {
+  const el = document.createElement("div"); el.className = "q";
+  el.innerHTML = `<div class="qn">問 <span class="n">${i + 1}</span></div><p class="qt">${ts(x.q)}</p><div class="choices">${x.o.map((o, j) => `<button type="button" data-j="${j}">${ts(o)}</button>`).join("")}</div><p class="fb" hidden></p>`;
+  let first = true;
+  el.addEventListener("click", (ev) => {
+    const b = ev.target.closest("button"); if (!b) return;
+    const ok = +b.dataset.j === x.a, fb = $(".fb", el);
+    b.className = ok ? "right" : "wrong";
+    fb.hidden = false; fb.className = "fb " + (ok ? "ok" : "ng");
+    fb.innerHTML = ok ? "正解！ " + `<span style="color:var(--ink);font-weight:400">${ts(x.e)}</span>` : "もう一度考えよう。";
+    if (first) { nAns++; if (ok) nRight++; first = false; }
+    if (ok) $$("button", el).forEach((y) => (y.disabled = true));
+    if ($$(".q .right").length === QUIZ.length) {
+      stepDone.add(SC.length); renderNav();
+      const sc = $("#score"); sc.hidden = false; sc.innerHTML = `<span>1 回目で正解：<span class="n">${nRight}</span> / <span class="n">${QUIZ.length}</span> 問</span>`;
+    }
+  });
+  $("#quiz").appendChild(el);
+});
+
+/* ================= 場面の切りかえ ================= */
+function go(i) {
+  cur = clamp(i, 0, NSTEP - 1);
+  $$("section.step").forEach((s) => (s.hidden = +s.dataset.step !== cur));
+  renderNav(); scrollTo(0, 0);
 }
 function renderNav() {
-  $$("#steps button").forEach((b) => {
-    const n = +b.dataset.go;
-    if (n === cur) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current");
-    const done = n > 0 && n < 5 && stepDone.has(n);
-    b.classList.toggle("done", done);
-    $(".k", b).textContent = done ? "✓" : String(n);
+  $$("#steps button").forEach((b, i) => {
+    if (i === cur) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current");
+    b.classList.toggle("done", stepDone.has(i));
+    $(".k", b).textContent = stepDone.has(i) ? "✓" : String(i + 1);
   });
   $("#prevBtn").disabled = cur === 0;
-  const nb = $("#nextBtn");
-  nb.disabled = cur === STEP_COUNT - 1;
-  nb.textContent = cur === 0 ? "はじめる →" : "次へ →";
-  let left = 0;
-  if (tasks[cur]) left = tasks[cur].list.length - tasks[cur].done.size;
-  nb.classList.toggle("ready", cur > 0 && cur < 5 && left === 0);
-  const nextName = cur < STEP_COUNT - 1 ? `次：${STEP_NAMES[cur + 1]}` : "";
-  $("#midTxt").innerHTML = cur === 0 ? `<b>はじめに</b><br>${nextName}`
-    : cur === 5 ? `<b>STEP 5　まとめ</b>`
-    : `<b>STEP ${cur}　${STEP_NAMES[cur]}</b><br>${left ? `やること 残り ${left}` : "完了！ " + nextName}`;
+  const nb = $("#nextBtn"); nb.disabled = cur === NSTEP - 1; nb.classList.toggle("ready", stepDone.has(cur) && cur < NSTEP - 1);
+  const sc = scenes[cur];
+  $("#midTxt").innerHTML = sc
+    ? `<b>場面 <span class="n">${cur + 1}</span> / <span class="n">${NSTEP}</span>　${sc.c.name}</b><br>${stepDone.has(cur) ? "完了。「次へ」で進もう" : `やること　あと <span class="n">${sc.c.tasks.length - sc.done.size}</span> つ`}`
+    : `<b>場面 <span class="n">${NSTEP}</span> / <span class="n">${NSTEP}</span>　つなげる</b>`;
 }
-document.addEventListener("click", (ev) => {
-  const b = ev.target.closest("[data-go]"); if (b) go(+b.dataset.go);
-});
+$("#steps").addEventListener("click", (ev) => { const b = ev.target.closest("button"); if (b) go(+b.dataset.go); });
 $("#prevBtn").addEventListener("click", () => go(cur - 1));
 $("#nextBtn").addEventListener("click", () => go(cur + 1));
 $("#helpBtn").addEventListener("click", () => $("#help").showModal());
 $("#helpClose").addEventListener("click", () => $("#help").close());
+go(0);
 
-/* ================= STEP 1 蒸気圧降下 ================= */
-modules[1] = (() => {
-  const ca = makeCanvas("cv1a"), cb = makeCanvas("cv1b"), ch = makeCanvas("ch1");
-  const SEED_A = 11, SEED_B = 11;     // 同じ種：入れる前は A と B が同じ動き
-  let A, B, mB = 0, mSel = 1, tAdd = null, tConc = null, simT = 0;
-  const hist = [];                    // [時刻, A の数, B の数]
-  const fxA = [], fxB = [];           // 蒸発・凝縮の演出
-  const rate = { eA: 0, cA: 0, eB: 0, cB: 0 };
-  let emaA = 0, emaB = 0, lastA = { e: 0, c: 0 }, lastB = { e: 0, c: 0 };
-
-  function reset() {
-    A = Model.createVapor({ seed: SEED_A }); B = Model.createVapor({ seed: SEED_B });
-    for (let i = 0; i < 1800; i++) { A.step(); B.step(); }   // はじめから気液平衡にしておく
-    emaA = A.counts().gas; emaB = B.counts().gas;
-    lastA = { e: A.evapCount, c: A.condCount }; lastB = { e: B.evapCount, c: B.condCount };
-    rate.eA = rate.cA = rate.eB = rate.cB = 6; hist.length = 0; simT = 0;
-  }
-  reset();
-
-  function soluteCount(m) { const c = B.counts(); return Math.round((1 - Model.xWater(m)) * (c.water + c.solute)); }
-  function setConc(m) {
-    mB = m; B.setSolute(m > 0 ? soluteCount(m) : 0);
-    setText("s1bLabel", m > 0 ? "グルコース水溶液" : "純水");
-    const o = $("#s1conc2"); o.hidden = !(m > 0); o.innerHTML = `<span class="n" style="font-size:13px">${m.toFixed(1)}</span> mol/kg`;
-  }
-  $("#s1add").addEventListener("click", () => {
-    if (mB > 0) return;
-    setConc(mSel); tAdd = simT; $("#s1add").disabled = true; $("#s1add").textContent = "入れました";
-    finish(1, "add");
-  });
-  segPick("s1conc", (m) => { mSel = m; if (mB > 0) { setConc(m); tConc = m === 2 ? simT : null; } });
-
-  function drawBox(c, sim, fx) {
-    const { ctx, W, H } = c; c.begin();
-    const S = sim.S;
-    ctx.fillStyle = COL.gas; ctx.fillRect(0, 0, W, S);
-    ctx.fillStyle = COL.liq; ctx.fillRect(0, S, W, H - S);
-    ctx.strokeStyle = COL.water; ctx.globalAlpha = 0.5; ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.moveTo(0, S); ctx.lineTo(W, S); ctx.stroke(); ctx.globalAlpha = 1;
-    for (const p of sim.ps) {
-      if (p.type === "s") hexagon(ctx, p.x, p.y, 6.2);
-      else circle(ctx, p.x, p.y, 4.2, COL.water);
-    }
-    // 蒸発（オレンジ ↑）・凝縮（青 ↓）を液面に短く表示
-    for (const e of sim.events) fx.push({ x: e.x, kind: e.kind, t: 0 });
-    for (let i = fx.length - 1; i >= 0; i--) {
-      const f = fx[i]; f.t += 1 / 60;
-      if (f.t > 0.7) { fx.splice(i, 1); continue; }
-      ctx.globalAlpha = 1 - f.t / 0.7;
-      if (f.kind === "evap") arrow(ctx, f.x, S + 4, f.x, S - 16, COL.warm, 2, 5);
-      else arrow(ctx, f.x, S - 16, f.x, S + 4, COL.accent, 2, 5);
-      ctx.globalAlpha = 1;
-    }
-    ctx.strokeStyle = COL.ink; ctx.lineWidth = 3; ctx.strokeRect(1.5, 1.5, W - 3, H - 3);
-  }
-  function drawChart() {
-    const { ctx, W, H } = ch; ch.begin();
-    const L = 34, R = 8, T = 10, Bm = 22, maxN = 30;
-    const x = (t) => L + (W - L - R) * (t / 30), y = (n) => T + (H - T - Bm) * (1 - n / maxN);
-    ctx.strokeStyle = COL.line; ctx.lineWidth = 1; ctx.font = "13px 'Times New Roman', 'Liberation Serif', serif"; ctx.fillStyle = COL.muted;
-    for (let n = 0; n <= maxN; n += 5) { ctx.beginPath(); ctx.moveTo(L, y(n)); ctx.lineTo(W - R, y(n)); ctx.stroke(); ctx.fillText(String(n), 8, y(n) + 4); }
-    const t0 = Math.max(0, simT - 30);
-    const line = (k, col) => {
-      ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.beginPath();
-      hist.forEach((h, i) => { const px = x(h[0] - t0); i ? ctx.lineTo(px, y(h[k])) : ctx.moveTo(px, y(h[k])); });
-      ctx.stroke();
-    };
-    line(1, COL.water); line(2, COL.solute);
-    if (tAdd !== null && tAdd >= t0) {
-      ctx.strokeStyle = COL.solute; ctx.setLineDash([4, 4]); ctx.lineWidth = 1.5;
-      ctx.beginPath(); ctx.moveTo(x(tAdd - t0), T); ctx.lineTo(x(tAdd - t0), H - Bm); ctx.stroke(); ctx.setLineDash([]);
-    }
-  }
-
-  function frame(dt) {
-    const n = Math.min(3, Math.max(1, Math.round(dt * 60)));
-    for (let i = 0; i < n; i++) { A.step(); B.step(); simT += 1 / 60; }
-    const cA = A.counts(), cB = B.counts();
-    const a = Math.min(1, n / 60 / 0.8);
-    emaA += (cA.gas - emaA) * a; emaB += (cB.gas - emaB) * a;
-    // 1 秒あたりの回数（時定数 4 秒の平均）
-    const k = Math.min(1, n / 60 / 4), per = 60 / n;
-    rate.eA += ((A.evapCount - lastA.e) * per - rate.eA) * k; rate.cA += ((A.condCount - lastA.c) * per - rate.cA) * k;
-    rate.eB += ((B.evapCount - lastB.e) * per - rate.eB) * k; rate.cB += ((B.condCount - lastB.c) * per - rate.cB) * k;
-    lastA = { e: A.evapCount, c: A.condCount }; lastB = { e: B.evapCount, c: B.condCount };
-    if (!hist.length || simT - hist[hist.length - 1][0] > 0.2) hist.push([simT, emaA, emaB]);
-    while (hist.length && hist[0][0] < simT - 30) hist.shift();
-
-    drawBox(ca, A, fxA); drawBox(cb, B, fxB); drawChart();
-    setText("gA", String(Math.round(emaA))); setText("gB", String(Math.round(emaB)));
-    setText("oA", String(Math.round(emaA))); setText("oB", String(Math.round(emaB)));
-    const R = 8;
-    setBar("eA", rate.eA / R); setBar("cA", rate.cA / R); setBar("eB", rate.eB / R); setBar("cB", rate.cB / R);
-    setText("eAv", fx(rate.eA, 1)); setText("cAv", fx(rate.cA, 1)); setText("eBv", fx(rate.eB, 1)); setText("cBv", fx(rate.cB, 1));
-
-    // 課題の進み具合
-    if (tAdd !== null && !isDone(1, "wait")) {
-      const p = clamp((simT - tAdd) / 12, 0, 1);
-      $("#s1wait").style.width = p * 100 + "%";
-      setText("s1waitTxt", p < 1 ? `あと ${Math.ceil(12 - (simT - tAdd))} 秒` : "");
-      if (p >= 1) { setText("s1waitTxt", "B の水蒸気の数が減って、A より少ないところで落ちついた。"); finish(1, "wait"); }
-    }
-    if (tConc !== null && isDone(1, "why") && !isDone(1, "conc")) {
-      const p = clamp((simT - tConc) / 10, 0, 1);
-      $("#s1wait2").style.width = p * 100 + "%";
-      if (p >= 1) finish(1, "conc");
-    }
-    setText("s1ratio", fx(emaB / Math.max(1, emaA), 2)); setText("s1x", fx(cB.x, 2));
-
-    let msg;
-    const since = tAdd === null ? -1 : simT - Math.max(tAdd, tConc ?? -1);
-    if (mB === 0) msg = "A と B は同じ純水。蒸発と凝縮が同じ速さで起こり、水蒸気の分子の数はほぼ一定です（<b>気液平衡</b>）。";
-    else if (rate.cB - rate.eB > 0.5 && since < 20) msg = "B では液面の一部をグルコースがしめるので、<b>蒸発が減りました</b>。凝縮のほうが多いので、水蒸気が減っていきます。";
-    else msg = "B の水蒸気は A より少ないところで落ちつきました。B でも <b>蒸発 ＝ 凝縮</b>（新しい気液平衡）。水蒸気が少ない ＝ <b>蒸気圧が低い</b>。";
-    setHTML("now1", msg);
-  }
-  return { frame, enter() {} };
-})();
-
-/* ================= STEP 2 沸点上昇 ================= */
-modules[2] = (() => {
-  const cv = makeCanvas("cv2"), ch = makeCanvas("ch2");
-  let m = 1, TA = Model.T_START, TB = Model.T_START, running = false, bA = null, bB = null, t = 0, boiledTwo = false;
-  const bubbles = [];
-  const Tmin = 98.8, Tmax = 101.4, Pmin = 95, Pmax = 105;
-
-  function reset() {
-    TA = TB = Model.T_START; running = false; bA = bB = null; t = 0; bubbles.length = 0;
-    $("#s2heat").textContent = "▶ 加熱する"; $("#s2heat2").textContent = "▶ 加熱する";
-    setReading("rdA", null); setReading("rdB", null); setText("rdBd", "");
-  }
-  function setReading(id, T) {
-    const el = $("#" + id); el.classList.toggle("ok", T !== null);
-    $(".big-num", el).innerHTML = T === null ? "—" : `${T.toFixed(2)}<span class="n" style="font-size:18px"> °C</span>`;
-  }
-  function toggle() {
-    if (bA !== null && bB !== null) reset();
-    running = !running;
-    const s = running ? "■ 止める" : "▶ 加熱する";
-    $("#s2heat").textContent = s; $("#s2heat2").textContent = s;
-    if (running) finish(2, "heat");
-  }
-  $("#s2heat").addEventListener("click", toggle);
-  $("#s2heat2").addEventListener("click", toggle);
-  $("#s2reset").addEventListener("click", reset);
-  segPick("s2conc", (v) => { m = v; setText("s2mLab", v.toFixed(1)); reset(); updateCalc(); });
-  function updateCalc() {
-    setHTML("s2calc", `例：<span class="n">${m.toFixed(1)}</span> mol/kg のとき　Δ<i class="v">t</i> <span class="op">=</span> <span class="n">0.52 × ${m.toFixed(1)} = ${(Model.C.Kb * m).toFixed(2)} K</span>　→　沸点 <span class="n">${Model.bp(m).toFixed(2)} °C</span>`);
-  }
-  updateCalc();
-
-  const gx = (T) => 50 + 530 * (T - Tmin) / (Tmax - Tmin);
-  const gy = (P) => 240 - 225 * (P - Pmin) / (Pmax - Pmin);
-
-  function drawBeaker(x0, T, P, boiling, isSol) {
-    const { ctx } = cv;
-    const bw = 150, top = 70, bot = 250, lvl = 120;
-    // 加熱器
-    ctx.fillStyle = COL.line; ctx.fillRect(x0 - 10, bot + 6, bw + 20, 14);
-    if (running && !boiling) { ctx.fillStyle = COL.warm; ctx.globalAlpha = 0.6 + 0.3 * Math.sin(t * 6); ctx.fillRect(x0 + 10, bot + 9, bw - 20, 8); ctx.globalAlpha = 1; }
-    if (boiling) { ctx.fillStyle = COL.warm; ctx.fillRect(x0 + 10, bot + 9, bw - 20, 8); }
-    // 液体
-    ctx.fillStyle = COL.liq; ctx.fillRect(x0, lvl, bw, bot - lvl);
-    if (isSol) { ctx.fillStyle = COL["solute-soft"]; ctx.fillRect(x0, lvl, bw, bot - lvl); }
-    ctx.strokeStyle = COL.water; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x0, lvl); ctx.lineTo(x0 + bw, lvl); ctx.stroke();
-    // ビーカー
-    ctx.strokeStyle = COL.ink; ctx.lineWidth = 3;
-    ctx.beginPath(); ctx.moveTo(x0, top); ctx.lineTo(x0, bot); ctx.lineTo(x0 + bw, bot); ctx.lineTo(x0 + bw, top); ctx.stroke();
-    // 泡
-    for (const b of bubbles) if (b.x0 === x0) circle(ctx, b.x, b.y, b.r, null, COL.water);
-    // 蒸気圧のバー（右）と大気圧の線
-    const gx0 = x0 + bw + 22, gw = 22, g0 = 250, g1 = 70;
-    const py = (p) => g0 - (g0 - g1) * clamp((p - 90) / (104 - 90), 0, 1);
-    ctx.fillStyle = COL.bg; ctx.fillRect(gx0, g1, gw, g0 - g1);
-    ctx.fillStyle = boiling ? COL.warm : COL.water; ctx.fillRect(gx0, py(P), gw, g0 - py(P));
-    ctx.strokeStyle = COL.line; ctx.lineWidth = 1; ctx.strokeRect(gx0, g1, gw, g0 - g1);
-    ctx.strokeStyle = COL.ng; ctx.lineWidth = 2.5; ctx.setLineDash([5, 3]);
-    ctx.beginPath(); ctx.moveTo(gx0 - 6, py(Model.C.P_ATM)); ctx.lineTo(gx0 + gw + 6, py(Model.C.P_ATM)); ctx.stroke(); ctx.setLineDash([]);
-    return py(Model.C.P_ATM);
-  }
-  function drawGraph() {
-    const { ctx } = ch; ch.begin();
-    ctx.font = "13px 'Times New Roman', 'Liberation Serif', serif"; ctx.fillStyle = COL.muted; ctx.strokeStyle = COL.line; ctx.lineWidth = 1;
-    for (let P = 96; P <= 104; P += 2) { ctx.beginPath(); ctx.moveTo(50, gy(P)); ctx.lineTo(580, gy(P)); ctx.stroke(); ctx.fillText(String(P), 26, gy(P) + 4); }
-    for (let T = 99; T <= 101; T += 0.5) { ctx.beginPath(); ctx.moveTo(gx(T), 15); ctx.lineTo(gx(T), 240); ctx.stroke(); ctx.fillText(T.toFixed(1), gx(T) - 12, 256); }
-    ctx.strokeStyle = COL.ng; ctx.lineWidth = 2; ctx.setLineDash([6, 4]);
-    ctx.beginPath(); ctx.moveTo(50, gy(Model.C.P_ATM)); ctx.lineTo(580, gy(Model.C.P_ATM)); ctx.stroke(); ctx.setLineDash([]);
-    const curve = (f, col) => {
-      ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.beginPath();
-      for (let T = Tmin; T <= Tmax + 1e-9; T += 0.02) { const P = f(T); T === Tmin ? ctx.moveTo(gx(T), gy(P)) : ctx.lineTo(gx(T), gy(P)); }
-      ctx.stroke();
-    };
-    ctx.save(); ctx.beginPath(); ctx.rect(50, 10, 530, 231); ctx.clip();
-    curve(Model.pSat, COL.water); curve((T) => Model.pSol(T, m), COL.solute);
-    // 沸点の縦線（沸とうしたら）
-    const vline = (T, col) => { ctx.strokeStyle = col; ctx.lineWidth = 1.5; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(gx(T), gy(Model.C.P_ATM)); ctx.lineTo(gx(T), 240); ctx.stroke(); ctx.setLineDash([]); };
-    if (bA !== null) vline(100, COL.water);
-    if (bB !== null) vline(Model.bp(m), COL.solute);
-    circle(ctx, gx(TA), gy(Model.pSat(TA)), 6.5, COL.water, COL.surface);
-    circle(ctx, gx(TB), gy(Model.pSol(TB, m)), 6.5, COL.solute, COL.surface);
-    ctx.restore();
-  }
-
-  function frame(dt) {
-    if (running) {
-      t += dt;
-      TA = Model.heatStep(TA, 0, dt); TB = Model.heatStep(TB, m, dt);
-      if (bA === null && TA >= 100) { bA = t; setReading("rdA", 100); finish(2, "boilA"); }
-      if (bB === null && TB >= Model.bp(m)) {
-        bB = t; setReading("rdB", Model.bp(m));
-        setHTML("rdBd", `純水より <b class="n">${(Model.bp(m) - 100).toFixed(2)} K</b> 高い（濃さ <span class="n">${m.toFixed(1)}</span> mol/kg）`);
-        if (isDone(2, "boilA")) finish(2, "boilB");
-        if (m === 2 && isDone(2, "boilB")) { boiledTwo = true; setHTML("s2cfb", `<span class="n">2.0</span> mol/kg の沸点は <b class="n">${Model.bp(2).toFixed(2)} °C</b>。上がった温度は <span class="n">1.0</span> mol/kg のときの <span class="n">2</span> 倍です。`); finish(2, "conc"); }
-      }
-      if (bA !== null && bB !== null) { running = false; $("#s2heat").textContent = "↺ もう一度"; $("#s2heat2").textContent = "▶ 加熱する"; }
-    } else t += dt * 0.3;
-    const boilA = TA >= 100 - 1e-9 && bA !== null, boilB = bB !== null;
-    // 泡：沸とうしている方だけ底から出る
-    for (const [x0, on] of [[30, boilA], [320, boilB]]) {
-      if (on && Math.random() < dt * 18) bubbles.push({ x0, x: x0 + 15 + Math.random() * 120, y: 245, r: 2 + Math.random() * 3, v: 30 + Math.random() * 40 });
-    }
-    for (let i = bubbles.length - 1; i >= 0; i--) { const b = bubbles[i]; b.y -= b.v * dt; b.r += dt * 2; if (b.y < 124) bubbles.splice(i, 1); }
-
-    cv.begin();
-    const PA = Model.pSat(TA), PB = Model.pSol(TB, m);
-    const ya = drawBeaker(30, TA, PA, boilA, false);
-    drawBeaker(320, TB, PB, boilB, true);
-    $("#s2atmA").style.top = (ya / 300 * 100 - 3) + "%"; $("#s2atmB").style.top = (ya / 300 * 100 - 3) + "%";
-    $("#s2boilA").hidden = !boilA; $("#s2boilB").hidden = !boilB;
-    drawGraph();
-
-    setText("tA", TA.toFixed(2)); setText("tB", TB.toFixed(2)); setText("oTA", TA.toFixed(2)); setText("oTB", TB.toFixed(2));
-    setText("pA", PA.toFixed(1) + " kPa"); setText("pB", PB.toFixed(1) + " kPa");
-    const st = (on, T) => on ? ["down", "沸とう中"] : running ? ["up", "温度上昇中"] : T > Model.T_START ? ["", "停止中"] : ["", "加熱前"];
-    setState("s2stA", ...st(boilA, TA)); setState("s2stB", ...st(boilB, TB));
-
-    let msg;
-    if (!running && bA === null && TA === Model.T_START) msg = "A も B も <span class=\"n\">99.00 °C</span>。どちらも蒸気圧は大気圧より低いので、まだ沸とうしません。B の蒸気圧は A より低い（STEP <span class=\"n\">1</span>）。";
-    else if (!boilA) msg = "温度が上がると、蒸気圧も大きくなります。蒸気圧のバーが<b>大気圧の線</b>に届くと沸とうします。";
-    else if (!boilB) msg = "A は <b>蒸気圧 ＝ 大気圧</b> になって沸とう（温度は <span class=\"n\">100 °C</span> のまま）。B は蒸気圧が低いので、まだ大気圧に届きません。";
-    else msg = `B も蒸気圧が大気圧に届いて沸とうしました。B の沸点は <b class="n">${Model.bp(m).toFixed(2)} °C</b>（純水より高い）。`;
-    setHTML("now2", msg);
-  }
-  return { frame, enter() {} };
-})();
-
-/* ================= STEP 3 凝固点降下 ================= */
-modules[3] = (() => {
-  const ca = makeCanvas("cv3a"), cb = makeCanvas("cv3b");
-  let T = 0.5, m = 1, iceA = 50, iceB = 50, holdFind = 0, holdConc = 0;
-  const W = 300, H = 260, COLS = 12, DX = W / COLS, DY = 17, YI = 150;  // YI：境目の高さ
-
-  // 境目の拡大図：氷の格子（一番上の段だけ出入りがある）と、液体の分子
-  function makeScene(seed, solute) {
-    const r = Model.rng(seed);
-    const sc = { r, top: Array.from({ length: COLS }, (_, i) => i % 2 === 0), liq: [], moving: [], shift: 0, credit: { f: r(), m: r() } };
-    sc.addLiquid = (type, x, y) => sc.liq.push({ type, x: x ?? 10 + r() * (W - 20), y: y ?? 12 + r() * (YI - 30), vx: 0, vy: 0 });
-    for (let i = 0; i < 46; i++) sc.addLiquid("w");
-    sc.setSolute = (n) => {
-      sc.liq = sc.liq.filter((p) => p.type === "w");
-      for (let i = 0; i < n; i++) sc.addLiquid("s");
-    };
-    sc.setSolute(solute);
-    return sc;
-  }
-  const scA = makeScene(5, 0), scB = makeScene(9, 0);
-  const soluteN = (mm) => Math.round(46 * (1 - Model.xWater(mm)) / Model.xWater(mm));
-  scB.setSolute(soluteN(m));
-
-  const slotX = (i) => DX * (i + 0.5);
-  function stepScene(sc, rates, dt) {
-    const r = sc.r;
-    for (const p of sc.liq) {
-      const k = p.type === "s" ? 0.6 : 1;
-      p.vx = p.vx * 0.9 + (r() - 0.5) * 0.9 * k; p.vy = p.vy * 0.9 + (r() - 0.5) * 0.9 * k;
-      p.x = clamp(p.x + p.vx, 6, W - 6); p.y = clamp(p.y + p.vy, 6, YI - 14);
-    }
-    // 凝固・融解のできごと（1秒あたり 3.5 × 速さ）
-    sc.credit.f += 3.5 * rates.freeze * dt; sc.credit.m += 3.5 * rates.melt * dt;
-    while (sc.credit.f >= 1) {
-      sc.credit.f -= 1;
-      let empty = sc.top.map((v, i) => (v ? -1 : i)).filter((i) => i >= 0);
-      if (!empty.length) { sc.top.fill(false); sc.shift = -DY; empty = sc.top.map((_, i) => i); }
-      const i = empty[Math.floor(r() * empty.length)];
-      // その場所に一番近い液体の水分子が、氷にくっつく
-      let best = null, bd = 1e9;
-      for (const p of sc.liq) if (p.type === "w") { const d = (p.x - slotX(i)) ** 2 + (p.y - YI) ** 2; if (d < bd) { bd = d; best = p; } }
-      if (best) { sc.liq.splice(sc.liq.indexOf(best), 1); sc.moving.push({ x: best.x, y: best.y, i, t: 0 }); sc.addLiquid("w", 10 + r() * (W - 20), 8); }
-      sc.top[i] = "pending";
-    }
-    while (sc.credit.m >= 1) {
-      sc.credit.m -= 1;
-      let full = sc.top.map((v, i) => (v === true ? i : -1)).filter((i) => i >= 0);
-      if (!full.length) { sc.top.fill(true); sc.shift = DY; full = sc.top.map((_, i) => i); }
-      const i = full[Math.floor(r() * full.length)];
-      sc.top[i] = false;
-      sc.addLiquid("w", slotX(i), YI - 16); const p = sc.liq[sc.liq.length - 1]; p.vy = -1.5; p.flash = 0.6;
-      // 液体の分子の数を保つ（上の液体へ出ていく）
-      let hi = null; for (const q of sc.liq) if (q.type === "w" && (!hi || q.y < hi.y)) hi = q;
-      if (hi) sc.liq.splice(sc.liq.indexOf(hi), 1);
-    }
-    for (let k = sc.moving.length - 1; k >= 0; k--) {
-      const mv = sc.moving[k]; mv.t += dt / 0.35;
-      if (mv.t >= 1) { sc.top[mv.i] = true; sc.moving.splice(k, 1); }
-    }
-    sc.shift *= Math.pow(0.02, dt);
-    for (const p of sc.liq) if (p.flash) p.flash = Math.max(0, p.flash - dt);
-  }
-  function drawScene(c, sc) {
-    const { ctx } = c; c.begin();
-    ctx.fillStyle = COL.liq; ctx.fillRect(0, 0, W, YI);
-    ctx.fillStyle = COL["ice-fill"]; ctx.fillRect(0, YI - DY / 2 + sc.shift, W, H);
-    const rowY = (k) => YI + k * DY + sc.shift;  // k = 0 が一番上の段
-    // 氷の格子（水素結合の線＋分子）
-    ctx.strokeStyle = COL.ice; ctx.globalAlpha = 0.35; ctx.lineWidth = 1.2;
-    for (let k = 0; k < 7; k++) for (let i = 0; i < COLS; i++) {
-      const x = slotX(i) + (k % 2 ? DX / 2 : 0), y = rowY(k);
-      const has = k > 0 || sc.top[i] === true;
-      if (!has) continue;
-      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + DX, y); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + (k % 2 ? DX / 2 : -DX / 2), y + DY); ctx.stroke();
-    }
-    ctx.globalAlpha = 1;
-    for (let k = 0; k < 7; k++) for (let i = 0; i < COLS; i++) {
-      const has = k > 0 || sc.top[i] === true;
-      if (has) circle(ctx, slotX(i) + (k % 2 ? DX / 2 : 0), rowY(k), 4.4, COL.ice);
-    }
-    for (const mv of sc.moving) {
-      const e = 1 - (1 - mv.t) ** 2, tx = slotX(mv.i), ty = rowY(0);
-      const x = mv.x + (tx - mv.x) * e, y = mv.y + (ty - mv.y) * e;
-      circle(ctx, x, y, 8, null, COL.accent); circle(ctx, x, y, 4, COL.water);
-    }
-    for (const p of sc.liq) {
-      if (p.type === "s") hexagon(ctx, p.x, p.y, 6.5);
-      else { circle(ctx, p.x, p.y, 4, COL.water); if (p.flash) { ctx.globalAlpha = p.flash / 0.6; circle(ctx, p.x, p.y, 8, null, COL.warm); ctx.globalAlpha = 1; } }
-    }
-    ctx.strokeStyle = COL.ice; ctx.lineWidth = 1.5; ctx.setLineDash([5, 4]);
-    ctx.beginPath(); ctx.moveTo(0, YI - DY / 2); ctx.lineTo(W, YI - DY / 2); ctx.stroke(); ctx.setLineDash([]);
-  }
-
-  function setT(v) {
-    T = Math.round(clamp(v, -4.5, 1) * 100) / 100;
-    $("#s3t").value = T; setText("s3tv", signed(T, 2)); setText("s3tShow", signed(T, 2) + " °C");
-  }
-  $("#s3zero").addEventListener("click", () => {
-    setT(0); finish(3, "zero");
-    setHTML("s3zfb", "A の氷は変わらない、B の氷は<b>とけていく</b>。下のバーで確かめよう。");
-  });
-  $("#s3t").addEventListener("input", (e) => setT(parseFloat(e.target.value)));
-  $$("[data-dt]").forEach((b) => b.addEventListener("click", () => setT(T + parseFloat(b.dataset.dt))));
-  segPick("s3conc", (v) => {
-    m = v; scB.setSolute(soluteN(v)); iceB = 50; iceA = 50; setText("s3mLab", v.toFixed(1)); holdConc = 0;
-    setHTML("s3calc", calcHTML());
-  });
-  const calcHTML = () => `例：<span class="n">${m.toFixed(1)}</span> mol/kg のとき　Δ<i class="v">t</i> <span class="op">=</span> <span class="n">1.85 × ${m.toFixed(1)} = ${(Model.C.Kf * m).toFixed(2)} K</span>　→　凝固点 <span class="n">${fx(Model.fp(m), 2)} °C</span>`;
-  setHTML("s3calc", calcHTML());
-
-  function trend(rates, ice) {
-    const d = rates.freeze - rates.melt;
-    if (ice <= 0.01 && d < 0) return ["down", "全部とけた"];
-    if (ice >= 99.99 && d > 0) return ["up", "全部こおった"];
-    if (Math.abs(d) < 0.004) return ["eq", "つり合い"];
-    return d > 0 ? ["up", "氷がふえる"] : ["down", "氷がへる"];
-  }
-
-  function frame(dt) {
-    const rA = Model.freezeRates(T, 0), rB = Model.freezeRates(T, m);
-    iceA = Model.iceStep(iceA, T, 0, dt); iceB = Model.iceStep(iceB, T, m, dt);
-    stepScene(scA, rA, dt); stepScene(scB, rB, dt);
-    drawScene(ca, scA); drawScene(cb, scB);
-    for (const [s, r, ice] of [["A", rA, iceA], ["B", rB, iceB]]) {
-      setBar("f" + s, r.freeze / 1.3); setBar("m" + s, r.melt / 1.3); setBar("i" + s, ice / 100);
-      setText("f" + s + "v", String(Math.round(r.freeze * 100))); setText("m" + s + "v", String(Math.round(r.melt * 100)));
-      setText("i" + s + "v", String(Math.round(ice)));
-      setText("oF" + s, String(Math.round(r.freeze * 100))); setText("oM" + s, String(Math.round(r.melt * 100))); setText("oI" + s, String(Math.round(ice)));
-      setState("s3st" + s, ...trend(r, ice));
-    }
-    const fpB = Model.fp(m), near = Math.abs(T - fpB) < 0.026;
-    if (isDone(3, "why") && !isDone(3, "find")) {
-      holdFind = near && m === 1 ? holdFind + dt : 0;
-      if (near && m === 1) setHTML("s3ffb", "その温度です！ B の 凝固 ＝ 融解 になっています…");
-      if (holdFind > 1.2) { setHTML("s3ffb", `B の凝固点は <b class="n">${fx(fpB, 2)} °C</b>。純水より <span class="n">${(-fpB).toFixed(2)} K</span> 低い。`); finish(3, "find"); }
-    }
-    if (isDone(3, "find") && !isDone(3, "conc")) {
-      holdConc = near && m === 2 ? holdConc + dt : 0;
-      if (m === 2 && !near) setHTML("s3cfb", "温度は 4 のスライダーで下げよう。B の 凝固 ＝ 融解 になる温度は？");
-      if (holdConc > 1.2) { setHTML("s3cfb", `<span class="n">2.0</span> mol/kg の凝固点は <b class="n">${fx(fpB, 2)} °C</b>。下がった温度は <span class="n">1.0</span> mol/kg のときの <span class="n">2</span> 倍です。`); finish(3, "conc"); }
-    }
-    let msg;
-    const dB = rB.freeze - rB.melt;
-    if (T > 0.001) msg = "A も B も、融解 ＞ 凝固 なので氷がとけていきます。温度を下げてみよう。";
-    else if (Math.abs(T) < 0.001) msg = "A は <b>凝固 ＝ 融解</b>（<span class=\"n\">0 °C</span> は純水の凝固点）。B はグルコースがじゃまをして凝固が少なく、<b>融解 ＞ 凝固</b>。だから B の氷はとけていく。";
-    else if (Math.abs(dB) < 0.004) msg = `温度を下げたので融解が遅くなり、B でも <b>凝固 ＝ 融解</b>。この温度（<span class="n">${fx(T, 2)} °C</span>）が B の凝固点です。A は 凝固 ＞ 融解 でこおり続けます。`;
-    else if (dB < 0) msg = "温度を下げると、融解が遅くなります。B はまだ 融解 ＞ 凝固。もう少し下げよう。";
-    else msg = "下げすぎです。B も 凝固 ＞ 融解 になり、氷がふえていきます。少し上げよう。";
-    setHTML("now3", msg);
-  }
-  return { frame, enter() { setT(T); } };
-})();
-
-/* ================= STEP 4 浸透圧 ================= */
-modules[4] = (() => {
-  const cu = makeCanvas("cv4"), cz = makeCanvas("cv4z");
-  let c = 1, dh = 0, P = 0, running = false, tRun = 0, holdPush = 0, holdConc = 0;
-  const UNIT = 46;                         // 液面差 1（1 mol/L のつり合い）を何 px で表すか
-  // 拡大図の粒子
-  const ZW = 240, ZH = 320, MX = 120, r = Model.rng(21);
-  let zp = [], credit = { f: 0.3, r: 0.6 }, cross = [];
-  function fillZoom() {
-    zp = [];
-    for (let i = 0; i < 26; i++) zp.push({ side: 0, type: "w", x: 8 + r() * (MX - 20), y: 30 + r() * (ZH - 40), vx: 0, vy: 0 });
-    const ns = Math.round(26 * (1 - Model.xWater(c)));
-    for (let i = 0; i < 26; i++) zp.push({ side: 1, type: i < ns ? "s" : "w", x: MX + 12 + r() * (MX - 20), y: 30 + r() * (ZH - 40), vx: 0, vy: 0 });
-  }
-  fillZoom();
-
-  function reset() {
-    dh = 0; running = false; tRun = 0; $("#s4start").textContent = "▶ スタート"; $("#s4prog").style.width = "0%";
-  }
-  $("#s4start").addEventListener("click", () => {
-    running = !running; $("#s4start").textContent = running ? "■ 止める" : "▶ つづける";
-  });
-  $("#s4reset").addEventListener("click", () => { reset(); setP(0); });
-  function setP(v) { P = Math.round(clamp(v, 0, 60) * 2) / 2; $("#s4p").value = P; setText("s4pv", P.toFixed(1)); running = true; $("#s4start").textContent = "■ 止める"; }
-  $("#s4p").addEventListener("input", (e) => setP(parseFloat(e.target.value)));
-  $$("[data-dp]").forEach((b) => b.addEventListener("click", () => setP(P + parseFloat(b.dataset.dp))));
-  segPick("s4conc", (v) => { c = v; fillZoom(); holdConc = 0; setHTML("s4calc", calcHTML()); running = true; $("#s4start").textContent = "■ 止める"; });
-  const piPa = () => Model.osmoticPa(c);
-  const calcHTML = () => `例：<span class="n">${c.toFixed(1)}</span> mol/L、<span class="n">27 °C</span> のとき　<i class="v">Π</i> <span class="op">=</span> <span class="n">${c.toFixed(1)} × 8.31 × 10<sup>3</sup> × 300 ≒ ${(piPa() / 1e5).toFixed(0)} × 10<sup>5</sup> Pa</span>`;
-  setHTML("s4calc", calcHTML());
-
-  function drawTube() {
-    const { ctx, W, H } = cu; cu.begin();
-    const L0 = 46, L1 = 136, R0 = 184, R1 = 274, top = 30, bot = 268, base = 150, by = 300;
-    const yA = base + dh * UNIT / 2, yB = base - dh * UNIT / 2;
-    // 液体
-    ctx.fillStyle = COL.liq;
-    ctx.fillRect(L0, yA, L1 - L0, bot - yA); ctx.fillRect(R0, yB, R1 - R0, bot - yB);
-    ctx.fillRect(L0, bot, R1 - L0, by - bot);
-    ctx.fillStyle = COL["solute-soft"]; ctx.fillRect(R0, yB, R1 - R0, bot - yB); ctx.fillRect(160, bot, R1 - 160, by - bot);
-    ctx.strokeStyle = COL.water; ctx.lineWidth = 2.5;
-    ctx.beginPath(); ctx.moveTo(L0, yA); ctx.lineTo(L1, yA); ctx.moveTo(R0, yB); ctx.lineTo(R1, yB); ctx.stroke();
-    // 管
-    ctx.strokeStyle = COL.ink; ctx.lineWidth = 3;
-    ctx.beginPath(); ctx.moveTo(L0, top); ctx.lineTo(L0, by); ctx.lineTo(R1, by); ctx.lineTo(R1, top); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(L1, top); ctx.lineTo(L1, bot); ctx.lineTo(R0, bot); ctx.lineTo(R0, top); ctx.stroke();
-    // 半透膜
-    ctx.strokeStyle = COL.ng; ctx.lineWidth = 4; ctx.setLineDash([6, 3]);
-    ctx.beginPath(); ctx.moveTo(160, bot + 2); ctx.lineTo(160, by - 2); ctx.stroke(); ctx.setLineDash([]);
-    // ピストン（押しているとき）
-    const pushOn = P > 0;
-    if (pushOn) {
-      ctx.fillStyle = COL.muted; ctx.fillRect(R0 + 3, yB - 12, R1 - R0 - 6, 12);
-      ctx.fillRect((R0 + R1) / 2 - 4, Math.max(4, yB - 40), 8, yB - 12 - Math.max(4, yB - 40));
-      arrow(ctx, (R0 + R1) / 2 + 22, yB - 40, (R0 + R1) / 2 + 22, yB - 16, COL.warm, 3, 8);
-    }
-    $("#s4push").hidden = !pushOn; $("#s4push").style.top = ((yB - 46) / H * 100) + "%";
-    // 液面差
-    if (Math.abs(dh) * UNIT > 6) {
-      ctx.strokeStyle = COL.muted; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
-      ctx.beginPath(); ctx.moveTo(L0, yA); ctx.lineTo(W - 18, yA); ctx.moveTo(R1, yB); ctx.lineTo(W - 18, yB); ctx.stroke(); ctx.setLineDash([]);
-      arrow(ctx, W - 22, (yA + yB) / 2, W - 22, yB, COL.ink, 1.5, 5); arrow(ctx, W - 22, (yA + yB) / 2, W - 22, yA, COL.ink, 1.5, 5);
-      $("#s4dhLab").hidden = false; $("#s4dhLab").style.top = (((yA + yB) / 2 - 24) / H * 100) + "%";
-    } else $("#s4dhLab").hidden = true;
-    // 流れの矢印（膜の上）
-    const { fwd, rev } = Model.osmosisRates(dh, Model.pressureToModel(P * 1e5), c);
-    if (running && Math.abs(fwd - rev) > 0.01) {
-      const toB = fwd > rev;
-      arrow(ctx, toB ? 140 : 180, 258, toB ? 180 : 140, 258, toB ? COL.teal : COL.accent, 3, 8);
-    }
-  }
-  function drawZoom(rates, dt) {
-    const { ctx } = cz; cz.begin();
-    ctx.fillStyle = COL.liq; ctx.fillRect(0, 0, ZW, ZH);
-    ctx.fillStyle = COL["solute-soft"]; ctx.fillRect(MX, 0, ZW - MX, ZH);
-    // 粒子の動き
-    for (const p of zp) {
-      const k = p.type === "s" ? 0.6 : 1;
-      p.vx = p.vx * 0.9 + (r() - 0.5) * 0.9 * k; p.vy = p.vy * 0.9 + (r() - 0.5) * 0.9 * k;
-      p.x += p.vx; p.y = clamp(p.y + p.vy, 26, ZH - 8);
-      if (p.side === 0) p.x = clamp(p.x, 8, MX - 8); else p.x = clamp(p.x, MX + (p.type === "s" ? 11 : 8), ZW - 8);
-    }
-    // 膜を通るできごと
-    if (running) { credit.f += 2.6 * rates.fwd * dt; credit.r += 2.6 * rates.rev * dt; }
-    const pass = (from) => {
-      let best = null, bd = 1e9;
-      for (const p of zp) if (p.side === from && p.type === "w") { const d = Math.abs(p.x - MX); if (d < bd) { bd = d; best = p; } }
-      if (!best) return;
-      zp.splice(zp.indexOf(best), 1);
-      cross.push({ from, x: best.x, y: best.y, t: 0 });
-      // 反対側の外から1つ補う（全体の量は U字管で見る）
-      zp.push({ side: from, type: "w", x: from === 0 ? 8 : ZW - 8, y: 30 + r() * (ZH - 40), vx: 0, vy: 0 });
-    };
-    while (credit.f >= 1) { credit.f -= 1; pass(0); }
-    while (credit.r >= 1) { credit.r -= 1; pass(1); }
-    for (let i = cross.length - 1; i >= 0; i--) {
-      const q = cross[i]; q.t += dt / 0.6;
-      const tx = q.from === 0 ? MX + 18 : MX - 18;
-      const x = q.x + (tx - q.x) * Math.min(1, q.t);
-      const col = q.from === 0 ? COL.teal : COL.accent;
-      if (q.t >= 1) {
-        cross.splice(i, 1);
-        // 反対側に入ったら、そちらの一番外側の分子を1つ外へ（数を保つ）
-        let far = null; for (const p of zp) if (p.side !== q.from && p.type === "w" && (!far || Math.abs(p.x - MX) > Math.abs(far.x - MX))) far = p;
-        if (far) zp.splice(zp.indexOf(far), 1);
-        zp.push({ side: 1 - q.from, type: "w", x: tx, y: q.y, vx: q.from === 0 ? 1 : -1, vy: 0 });
-        continue;
-      }
-      circle(ctx, x, q.y, 9, null, col); circle(ctx, x, q.y, 4, COL.water);
-    }
-    for (const p of zp) { if (p.type === "s") hexagon(ctx, p.x, p.y, 7); else circle(ctx, p.x, p.y, 4, COL.water); }
-    // 膜（すき間のある線）
-    ctx.fillStyle = COL.ng;
-    for (let y = 22; y < ZH; y += 22) ctx.fillRect(MX - 2, y, 4, 13);
-  }
-
-  function frame(dt) {
-    const Pm = Model.pressureToModel(P * 1e5);
-    const rates = Model.osmosisRates(dh, Pm, c);
-    if (running) { dh = Model.osmosisStep(dh, Pm, c, Math.min(dt, 0.05)); tRun += dt; }
-    drawTube(); drawZoom(rates, dt);
-    setBar("fw", rates.fwd / 1.6); setBar("rv1", Model.xWater(c) / 1.6); setBar("rv2", Math.max(0, rates.rev - Model.xWater(c)) / 1.6);
-    setText("fwv", String(Math.round(rates.fwd * 100))); setText("rvv", String(Math.round(rates.rev * 100)));
-    setText("oF4", String(Math.round(rates.fwd * 100))); setText("oR4", String(Math.round(rates.rev * 100)));
-    const net = rates.fwd - rates.rev, eq = Math.abs(net) < 0.012;
-    setState("s4st", ...(!running && tRun === 0 ? ["", "スタート前"] : eq ? ["eq", "つり合い"] : net > 0 ? ["up", "A → B が多い"] : ["down", "B → A が多い"]));
-    if (running && !isDone(4, "start")) {
-      $("#s4prog").style.width = clamp(dh / c, 0, 1) * 100 + "%";
-      if (eq && tRun > 1) { finish(4, "start"); $("#s4prog").style.width = "100%"; }
-    }
-    const level = Math.abs(dh) < 0.025 && eq;
-    if (isDone(4, "why") && !isDone(4, "push")) {
-      holdPush = level && c === 1 && P > 0 ? holdPush + dt : 0;
-      if (P > 0 && !level) setHTML("s4pfb", dh > 0.05 ? "まだ B の液面が高い。もう少し強く押そう。" : dh < -0.05 ? "押しすぎ！ B の液面が A より低くなった（水が B → A へ移動）。少し弱めよう。" : "液面が動いています。止まるまで待とう。");
-      if (holdPush > 1) { setHTML("s4pfb", `液面がそろいました。必要な圧力 約 <b class="n">${P.toFixed(1)} × 10<sup>5</sup> Pa</b> が、この水溶液の<b>浸透圧</b>です（計算値 <span class="n">${(piPa() / 1e5).toFixed(1)} × 10<sup>5</sup> Pa</span>）。`); finish(4, "push"); }
-    }
-    if (isDone(4, "push") && !isDone(4, "conc")) {
-      holdConc = level && c === 2 ? holdConc + dt : 0;
-      if (c === 2 && !level) setHTML("s4cfb", "4 のスライダーで押す圧力を調整して、液面をそろえよう。");
-      if (holdConc > 1) { setHTML("s4cfb", `<span class="n">2.0</span> mol/L では 約 <b class="n">${P.toFixed(1)} × 10<sup>5</sup> Pa</b>。<span class="n">1.0</span> mol/L のときの約 <span class="n">2</span> 倍です。`); finish(4, "conc"); }
-    }
-    let msg;
-    if (!running && tRun === 0) msg = "A と B の液面は同じ高さ。スタートすると、水分子が半透膜を通りぬけます（グルコースは通れません）。";
-    else if (P === 0 && net > 0.012) msg = "B 側は水分子の割合が小さいので、膜を通って A へもどる水分子が少ない。<b>A → B が多い</b>ので、B の液面が上がっていきます。";
-    else if (P === 0 && eq) msg = "B の液面が高くなると、その圧力（オレンジの部分）で水が押しもどされ、<b>A → B と B → A が等しく</b>なって液面が止まりました。";
-    else if (level) msg = "押す圧力で、液面がそろった状態でつり合いました。このときの圧力が<b>浸透圧</b>です。";
-    else if (net < -0.012) msg = "押す力が強いので、B → A が多くなり、B の液面が下がっていきます。";
-    else msg = eq ? "つり合って、液面が止まっています。" : "液面が動いています。止まるまで待とう。";
-    setHTML("now4", msg);
-  }
-  return { frame, enter() {} };
-})();
-
-/* ================= STEP 5 確認問題 ================= */
-(() => {
-  const QS = [
-    { q: "同じ温度で、蒸気圧が低いのはどちら？", o: ["純水", "グルコース水溶液", "どちらも同じ"], a: 1, e: "溶質の粒子が液面の一部をしめ、蒸発する水分子が減るので、水溶液の蒸気圧は低くなります（蒸気圧降下）。" },
-    { q: "1.0 mol/kg のグルコース水溶液の沸点は？（水の Kb = 0.52 K·kg/mol）", o: ["99.48 °C", "100.52 °C", "101.04 °C"], a: 1, e: "Δt = Kb m = 0.52 × 1.0 = 0.52 K 上がるので、100 + 0.52 = 100.52 °C。" },
-    { q: "0 °C の純水の氷を、0 °C の水溶液に入れると、氷はどうなる？", o: ["とける", "ふえる", "変わらない"], a: 0, e: "溶質が凝固をじゃまするので、0 °C では 融解 ＞ 凝固 となり、氷はとけます（STEP 3）。" },
-    { q: "水溶液の浸透圧を 2 倍にするには？（温度は同じ）", o: ["モル濃度を 2 倍にする", "同じ質量で、分子量が 2 倍の溶質にかえる", "半透膜の面積を 2 倍にする"], a: 0, e: "Π = cRT なので、浸透圧はモル濃度 c に比例します。分子量が 2 倍の溶質を同じ質量とかすと、物質量は半分になります。" },
-    { q: "同じ質量モル濃度のとき、凝固点が低いのは？", o: ["グルコース水溶液", "塩化ナトリウム水溶液", "どちらも同じ"], a: 1, e: "NaCl は Na⁺ と Cl⁻ に電離して粒子の数が約 2 倍になるので、凝固点降下も約 2 倍になります。" },
-  ];
-  const box = $("#quiz");
-  let answered = 0, right = 0;
-  QS.forEach((x, i) => {
-    const el = document.createElement("div"); el.className = "q";
-    el.innerHTML = `<div class="qn">問 <span class="n">${i + 1}</span></div><p class="qt">${typeset(x.q)}</p><div class="choices">${x.o.map((o, j) => `<button type="button" data-j="${j}">${typeset(o)}</button>`).join("")}</div><p class="fb" hidden></p>`;
-    el.addEventListener("click", (ev) => {
-      const b = ev.target.closest("button"); if (!b || el.dataset.done) return;
-      el.dataset.done = 1; answered++;
-      const ok = +b.dataset.j === x.a; if (ok) right++;
-      $$("button", el).forEach((bb) => { bb.disabled = true; if (+bb.dataset.j === x.a) bb.classList.add("right"); });
-      if (!ok) b.classList.add("wrong");
-      const fb = $(".fb", el); fb.hidden = false; fb.className = "fb " + (ok ? "ok" : "ng");
-      fb.innerHTML = (ok ? "正解！ " : "ざんねん。 ") + `<span style="color:var(--ink);font-weight:400">${typeset(x.e)}</span>`;
-      if (answered === QS.length) {
-        const s = $("#score"); s.hidden = false;
-        s.innerHTML = `<span>結果</span><span class="n">${right} / ${QS.length}</span><span>${right === QS.length ? "全問正解！ よくできました。" : "まちがえた問題は、もう一度そのステップで確かめよう。"}</span>`;
-      }
-    });
-    box.appendChild(el);
-  });
-  // 問題文の数値・単位・記号を組版する
-  function typeset(s) {
-    return s
-      .replace(/Kb/g, '<i class="v">K</i><sub>b</sub>').replace(/Δt/g, 'Δ<i class="v">t</i>').replace(/Π = cRT/g, '<i class="v">Π</i> <span class="op">=</span> <i class="v">cRT</i>')
-      .replace(/モル濃度 c/g, 'モル濃度 <i class="v">c</i>').replace(/ m = /g, ' <i class="v">m</i> = ')
-      .replace(/NaCl/g, '<span class="chem">NaCl</span>').replace(/Na⁺/g, '<span class="chem">Na<sup>+</sup></span>').replace(/Cl⁻/g, '<span class="chem">Cl<sup>−</sup></span>')
-      .replace(/(\d+(?:\.\d+)?(?: [×+] \d+(?:\.\d+)?)*(?: = \d+(?:\.\d+)?)?(?: (?:°C|K·kg\/mol|mol\/kg|K))?)/g, '<span class="n">$1</span>');
-  }
-})();
-
-/* ================= はじめる ================= */
-[1, 2, 3, 4].forEach(initTasks);
-let lastT = performance.now();
+let last = performance.now();
 function loop(now) {
-  const dt = Math.min(0.05, (now - lastT) / 1000); lastT = now;
-  if (modules[cur] && modules[cur].frame && !document.hidden) modules[cur].frame(dt);
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  if (scenes[cur] && !document.hidden) updateScene(scenes[cur], dt);
   requestAnimationFrame(loop);
 }
-go(0);
 requestAnimationFrame(loop);
+window.__app = { scenes, go };
 </script>
 <!--@ARTIFACT-END-->
 </body>

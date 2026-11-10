@@ -1,46 +1,41 @@
 // モデルが教科書どおりの傾向を示すか確かめる：node tools/check-model.js
 const M = require("../src/model.js");
-
-// STEP 1：B（水溶液）の水蒸気の数 ÷ A（純水）の数 ≒ 液体の水分子の割合（ラウールの法則）
-function vaporRatio(m, seed) {
-  const A = M.createVapor({ seed }), B = M.createVapor({ seed });
-  for (let i = 0; i < 3600; i++) { A.step(); B.step(); }
-  const c = B.counts();
-  B.setSolute(Math.round((1 - M.xWater(m)) * (c.water + c.solute)));
-  let sa = 0, sb = 0, n = 0;
-  for (let i = 0; i < 60 * 150; i++) { A.step(); B.step(); if (i > 60 * 30) { sa += A.counts().gas; sb += B.counts().gas; n++; } }
-  return { ratio: sb / sa, x: B.counts().x };
-}
+const run = (key, s, sec) => { for (let t = 0; t < sec; t += 0.02) M.step(key, s, 0.02); return s; };
+const bal = (key, s) => { const r = M.rates(key, s); return r.out - r.in; };
 const checks = [];
-for (const m of [1, 2]) {
-  const r = [3, 7].map((s) => vaporRatio(m, s));
-  const ratio = r.reduce((a, b) => a + b.ratio, 0) / r.length, x = r[0].x;
-  checks.push([`STEP 1 m = ${m}: vapor ratio ≈ water fraction ${x.toFixed(3)}`, ratio, (v) => Math.abs(v - x) < 0.04]);
+
+// 純水ではどの場面もつり合っている。溶質を入れた直後は、どの場面も「出る」だけが同じ割合で減る
+for (const key of ["vapor", "boil", "freeze", "osmo"]) {
+  const s = M.initState(key);
+  checks.push([`${key}: pure water is balanced`, bal(key, s), (v) => Math.abs(v) < 1e-12]);
+  s.mp = 1; if (key === "boil") s.heat = false;
+  const r = M.rates(key, s);
+  checks.push([`${key}: solute lowers only "out" (0.82), "in" stays 1`, r.out, (v) => Math.abs(v - 0.82) < 1e-12 && Math.abs(r.in - 1) < 1e-12]);
 }
-// STEP 2：沸点で蒸気圧 = 大気圧、加熱すると沸点で止まる
-checks.push(["STEP 2 pure water: P(100 °C) ≈ 101.3 kPa", M.pSat(100), (v) => Math.abs(v - 101.3) < 0.2]);
-checks.push(["STEP 2 1.0 mol/kg: P at bp = P(100) of pure", M.pSol(M.bp(1), 1) - M.pSat(100), (v) => Math.abs(v) < 1e-9]);
-checks.push(["STEP 2 solution below pure at same T", M.pSat(100) - M.pSol(100, 1), (v) => v > 1]);
-let T = M.T_START; for (let t = 0; t < 60; t += 0.05) T = M.heatStep(T, 2, 0.05);
-checks.push(["STEP 2 heating 2.0 mol/kg stops at 101.04 °C", T, (v) => Math.abs(v - 101.04) < 1e-9]);
-// STEP 3：凝固 = 融解 となる温度が凝固点（純水 0 °C、水溶液 −Kf·m）
-for (const m of [0, 0.5, 1, 2]) {
-  const r = M.freezeRates(M.fp(m), m);
-  checks.push([`STEP 3 m = ${m}: freeze = melt at ${M.fp(m).toFixed(3)} °C`, r.freeze - r.melt, (v) => Math.abs(v) < 1e-9]);
-}
-const r0 = M.freezeRates(0, 1);
-checks.push(["STEP 3 solution at 0 °C: melt > freeze (ice melts)", r0.melt - r0.freeze, (v) => v > 0.1]);
-let ice = 50; for (let t = 0; t < 60; t += 0.05) ice = M.iceStep(ice, M.fp(1), 1, 0.05);
-checks.push(["STEP 3 ice amount constant at the freezing point", ice, (v) => Math.abs(v - 50) < 1e-6]);
-// STEP 4：液面差は濃さに比例、押す圧力 = 浸透圧 で液面がそろう
-const settle = (c, Ppa) => { let dh = 0; for (let t = 0; t < 120; t += 0.05) dh = M.osmosisStep(dh, M.pressureToModel(Ppa), c, 0.05); return dh; };
-checks.push(["STEP 4 Δh(2.0) / Δh(1.0) = 2", settle(2, 0) / settle(1, 0), (v) => Math.abs(v - 2) < 1e-3]);
-for (const c of [0.5, 1, 2]) checks.push([`STEP 4 c = ${c}: pushing with Π = cRT levels the surfaces`, settle(c, M.osmoticPa(c)), (v) => Math.abs(v) < 1e-3]);
-checks.push(["STEP 4 Π(1.0 mol/L, 300 K) = 2.49 × 10^6 Pa", M.osmoticPa(1), (v) => Math.abs(v - 2.493e6) < 1e3]);
+// 蒸気圧降下：水蒸気が減って、新しいつり合い（水蒸気の数 ∝ 水分子の割合）
+let s = M.initState("vapor"); s.mp = 1; run("vapor", s, 60);
+checks.push(["vapor: settles at n/N0 = x", s.n / M.C.N0, (v) => Math.abs(v - 0.82) < 1e-6]);
+// 沸点上昇：加熱すると 100.52 °C で沸騰して止まる
+s = M.initState("boil"); s.mp = 1; s.heat = false; run("boil", s, 5);
+checks.push(["boil: not boiling at 100 °C with solute", s.boiling ? 1 : 0, (v) => v === 0]);
+s.heat = true; run("boil", s, 60);
+checks.push(["boil: 1.0 mol/kg boils and stays at 100.52 °C", s.T, (v) => Math.abs(v - 100.52) < 1e-9 && s.boiling]);
+// 凝固点降下：0 °C では氷がとけ、−1.85 °C でつり合う
+s = M.initState("freeze"); s.mp = 1; run("freeze", s, 3);
+checks.push(["freeze: ice melts at 0 °C with solute", s.ice, (v) => v < 50]);
+for (const mp of [0.5, 1, 2]) { const q = { mp, T: M.fp(mp), ice: 50 }; checks.push([`freeze: balanced at ${M.fp(mp).toFixed(3)} °C (mp = ${mp})`, bal("freeze", q), (v) => Math.abs(v) < 1e-12]); }
+// 浸透圧：液面差ができて止まる。浸透圧と同じ圧力で押すと液面がそろう。押しすぎると逆向き（逆浸透）
+s = M.initState("osmo"); s.mp = 1; run("osmo", s, 60);
+checks.push(["osmo: level difference settles at 1", s.dh, (v) => Math.abs(v - 1) < 1e-6]);
+s.P = 1; run("osmo", s, 60);
+checks.push(["osmo: pushing with Π levels the surfaces", s.dh, (v) => Math.abs(v) < 1e-6]);
+s.P = 1.3; run("osmo", s, 60);
+checks.push(["osmo: pushing harder reverses the flow", s.dh, (v) => v < -0.29]);
+// 実際の値
+checks.push(["Π(1.0 mol/L, 300 K) = 24.9 × 10^5 Pa", M.osmoticPa(1) / 1e5, (v) => Math.abs(v - 24.93) < 0.01]);
+checks.push(["vapor pressure at 25 °C, 1.0 mol/kg ≈ 3.11 kPa", M.vaporKPa(1), (v) => Math.abs(v - 3.114) < 0.002]);
+checks.push(["NaCl 1.0 mol/kg (mp = 2): fp = −3.70 °C", M.fp(2), (v) => Math.abs(v + 3.7) < 1e-9]);
 
 let ok = true;
-for (const [name, v, pass] of checks) {
-  const p = pass(v); ok &&= p;
-  console.log(`${p ? "ok " : "NG "} ${name}  (${Number(v).toFixed(4)})`);
-}
+for (const [name, v, pass] of checks) { const p = pass(v); ok &&= p; console.log(`${p ? "ok " : "NG "} ${name}  (${Number(v).toFixed(4)})`); }
 process.exit(ok ? 0 : 1);
