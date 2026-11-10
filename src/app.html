@@ -444,7 +444,7 @@ footer.site .version {
 .pc .delta { font-size: 13px; color: var(--muted); }
 .pc .lock { height: 10px; background: var(--bg); border-radius: 5px; overflow: hidden; }
 .pc .lock i { display: block; height: 100%; background: var(--solute); transition: width 0.15s linear; }
-.pc .f { font-family: var(--f-num); font-size: 15px; color: var(--muted); }
+.pc .f { font-size: 15px; color: var(--muted); }
 .common { border: 2px solid var(--accent); background: var(--accent-soft); border-radius: 12px; padding: 12px 16px; display: flex; flex-direction: column; gap: 6px; }
 .common b.big { font-family: var(--f-disp); font-size: clamp(18px, 2.6vw, 22px); line-height: 1.5; }
 .times { font-size: 15px; }
@@ -1020,9 +1020,9 @@ function updateScene(sc, dt) {
 /* ================= つなげる ================= */
 const PH = [
   { who: "相手：水蒸気", name: "蒸気圧降下", how: "水蒸気が減って、つり合う", f: "（{25 °C} の蒸気圧）", val: (mp) => `${fx(vaporKPa(mp), 2)} kPa`, dl: (mp) => `純水より ${fx(vaporKPa(0) - vaporKPa(mp), 2)} kPa 低い` },
-  { who: "相手：泡（水蒸気）", name: "沸点上昇", how: "<b>温度を上げて</b>「出る」を増やす", f: "Δ*t* = *K*~b~*m*", val: (mp) => `${fx(bp(mp), 2)} °C`, dl: (mp) => `純水より ${fx(bp(mp) - 100, 2)} K 高い` },
-  { who: "相手：氷", name: "凝固点降下", how: "<b>温度を下げて</b>「入る」を減らす", f: "Δ*t* = *K*~f~*m*", val: (mp) => `${fx(fp(mp), 2)} °C`, dl: (mp) => `純水より ${fx(-fp(mp), 2)} K 低い` },
-  { who: "相手：純水（半透膜ごし）", name: "浸透圧", how: "<b>圧力をかけて</b>「出る」を増やす", f: "*Π* = *cRT*", val: (mp) => `${fx(osmoticPa(mp) / 1e5, 1)} × 10<sup>5</sup> Pa`, dl: () => "液面をそろえる圧力" },
+  { who: "相手：泡（水蒸気）", name: "沸点上昇", how: "<b>温度を上げて</b>「出る」を増やす", f: "{Δ}*t* {=} *K*~b~*m*", val: (mp) => `${fx(bp(mp), 2)} °C`, dl: (mp) => `純水より ${fx(bp(mp) - 100, 2)} K 高い` },
+  { who: "相手：氷", name: "凝固点降下", how: "<b>温度を下げて</b>「入る」を減らす", f: "{Δ}*t* {=} *K*~f~*m*", val: (mp) => `${fx(fp(mp), 2)} °C`, dl: (mp) => `純水より ${fx(-fp(mp), 2)} K 低い` },
+  { who: "相手：純水（半透膜ごし）", name: "浸透圧", how: "<b>圧力をかけて</b>「出る」を増やす", f: "*Π* {=} *cRT*", val: (mp) => `${fx(osmoticPa(mp) / 1e5, 1)} × 10<sup>5</sup> Pa`, dl: () => "液面をそろえる圧力" },
 ];
 $("#cards4").innerHTML = PH.map((p, k) => `<div class="pc"><span class="who">${p.who}</span><h4>${p.name}</h4><p class="how">${ts(p.how)}</p><div class="valrow"><span class="big-num" id="pv${k}"></span><span class="delta" id="pd${k}"></span></div><div class="lock"><i id="pl${k}"></i></div><span class="f">${ts(p.f)}</span></div>`).join("");
 const link = { i: 1, name: "グルコース" };
