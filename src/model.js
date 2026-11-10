@@ -16,8 +16,10 @@ const C = {
   ALPHA: 0.18,     // 画面のモデル：粒子の濃さ 1 mol/kg で「出る」が 0.82 倍
   N0: 50,          // 画面のモデル：純水のつり合いでの水蒸気の分子の数
   TAU_V: 4,        // 水蒸気の数が落ちつく時間のめやす s
-  TAU_O: 2.5,      // 液面の差が落ちつく時間のめやす s
+  TAU_O: 2,      // 液面の差が落ちつく時間のめやす s
   HEAT: 0.1,       // 加熱で温度が上がる速さ °C/s
+  COOL: 0.3,       // 冷やして温度が下がる速さ °C/s
+  PUSH: 0.25,      // ピストンで押す圧力が上がる速さ /s
 };
 
 const xWater = (mp) => 1 - C.ALPHA * mp;
@@ -55,8 +57,15 @@ function step(key, s, dt) {
     // 加熱すると、沸騰するまで温度が上がる。沸騰中は温度が一定
     if (s.heat && r.out < 1 - 1e-6) s.T = Math.min(bp(s.mp), s.T + C.HEAT * dt);
     s.boiling = s.heat && rates(key, s).out >= 1 - 1e-6;
-  } else if (key === "freeze") s.ice = Math.max(10, Math.min(90, s.ice + 12 * (r.out - r.in) * dt));
-  else s.dh = Math.max(-1.5, Math.min(2.5, s.dh + ((r.in - r.out) / C.ALPHA / C.TAU_O) * dt));
+  } else if (key === "freeze") {
+    // 冷やすと、つり合う（凝固点）まで温度が下がる
+    if (s.cool && r.out < r.in - 1e-6) s.T = Math.max(fp(s.mp), s.T - C.COOL * dt);
+    s.ice = Math.max(10, Math.min(90, s.ice + 12 * (r.out - r.in) * dt));
+  } else {
+    // 押すと、浸透圧と同じ圧力まで上がる
+    if (s.push) s.P = Math.min(s.mp, s.P + C.PUSH * dt);
+    s.dh = Math.max(-1.5, Math.min(2.5, s.dh + ((r.in - r.out) / C.ALPHA / C.TAU_O) * dt));
+  }
   return s;
 }
 

@@ -19,11 +19,17 @@ checks.push(["vapor: settles at n/N0 = x", s.n / M.C.N0, (v) => Math.abs(v - 0.8
 s = M.initState("boil"); s.mp = 1; s.heat = false; run("boil", s, 5);
 checks.push(["boil: not boiling at 100 °C with solute", s.boiling ? 1 : 0, (v) => v === 0]);
 s.heat = true; run("boil", s, 60);
-checks.push(["boil: 1.0 mol/kg boils and stays at 100.52 °C", s.T, (v) => Math.abs(v - 100.52) < 1e-9 && s.boiling]);
+checks.push(["boil: 1.0 mol/kg stays at 100.52 °C", s.T, (v) => Math.abs(v - 100.52) < 1e-9]);
+checks.push(["boil: 1.0 mol/kg is boiling at 100.52 °C", s.boiling ? 1 : 0, (v) => v === 1]);
 // 凝固点降下：0 °C では氷がとけ、−1.85 °C でつり合う
 s = M.initState("freeze"); s.mp = 1; run("freeze", s, 3);
 checks.push(["freeze: ice melts at 0 °C with solute", s.ice, (v) => v < 50]);
 for (const mp of [0.5, 1, 2]) { const q = { mp, T: M.fp(mp), ice: 50 }; checks.push([`freeze: balanced at ${M.fp(mp).toFixed(3)} °C (mp = ${mp})`, bal("freeze", q), (v) => Math.abs(v) < 1e-12]); }
+s = M.initState("freeze"); s.mp = 1; s.cool = true; run("freeze", s, 30);
+checks.push(["freeze: cooling stops at −1.85 °C", s.T, (v) => Math.abs(v + 1.85) < 1e-9]);
+s = M.initState("osmo"); s.mp = 1; s.push = true; run("osmo", s, 60);
+checks.push(["osmo: auto push levels the surfaces", s.dh, (v) => Math.abs(v) < 1e-6]);
+checks.push(["osmo: auto push stops at Π", s.P, (v) => Math.abs(v - 1) < 1e-9]);
 // 浸透圧：液面差ができて止まる。浸透圧と同じ圧力で押すと液面がそろう。押しすぎると逆向き（逆浸透）
 s = M.initState("osmo"); s.mp = 1; run("osmo", s, 60);
 checks.push(["osmo: level difference settles at 1", s.dh, (v) => Math.abs(v - 1) < 1e-6]);
